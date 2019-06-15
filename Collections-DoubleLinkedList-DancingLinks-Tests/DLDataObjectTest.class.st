@@ -30,20 +30,17 @@ DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
 
 { #category : #tests }
 DLDataObjectTest >> viewGrid: aGrid [
-	| v es |
-	v := RTView new.
-	v @ RTDraggableView.
-	es := RTBox elementsOn: aGrid values.
-	v addAll: es.
-	RTEdgeBuilder new
-		view: v;
-		elements: es;
+	| b |
+	b := RTMondrian new.
+	b shape circle.
+	b nodes: aGrid values.
+	b edges
 		connectToAll: [ :aValue | 
 			{aValue left.
 			aValue right.
 			aValue up.
 			aValue down} ].
-	RTGridLayout on: es.
-	es @ RTDraggableChildren.
-	^ v
+	b layout circle.
+	b build.
+	^ b view
 ]
