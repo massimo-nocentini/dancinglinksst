@@ -5,6 +5,19 @@ Class {
 }
 
 { #category : #accessing }
+DLRootObject >> chooseColumn [
+	| c s |
+	s := Float infinity.
+	self
+		untilFixPointForDirection: #right
+		do: [ :j | 
+			j size < s
+				ifTrue: [ c := j.
+					s := j size ] ].
+	^ c
+]
+
+{ #category : #accessing }
 DLRootObject >> column [
 	self shouldNotImplement
 ]

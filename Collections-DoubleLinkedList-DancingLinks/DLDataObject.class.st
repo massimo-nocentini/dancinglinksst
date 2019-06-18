@@ -45,7 +45,7 @@ DLDataObject class >> gridOn: aCollection [
 			dataObj
 				addInDoubleLinkedList: column direction: #ns;
 				addInDoubleLinkedList: row direction: #we.
-			columnObj incrementSize.
+			columnObj updateSize: [:s | s +1].
 			allObjs at: aPoint put: dataObj ].
 	headers makeCircular.
 	columns valuesDo: #makeCircular.
@@ -58,6 +58,18 @@ DLDataObject >> addInDoubleLinkedList: aDoubleLinkedList direction: aSymbol [
 	|doubleLink|
 	doubleLink := aDoubleLinkedList add: self.
 	aSymbol = #ns ifTrue:[ ns := doubleLink ] ifFalse: [ we := doubleLink  ]
+]
+
+{ #category : #accessing }
+DLDataObject >> asColumnsSet [
+	| set r getter |
+	
+	getter := [ :o | o column name ].
+	r := self.
+	set := Set with: (getter value: r).
+	[ r := r right.
+	r == self ] whileFalse: [ set add: (getter value: r) ].
+	^ set
 ]
 
 { #category : #accessing }
@@ -75,14 +87,32 @@ DLDataObject >> down [
 	^ ns nextLink value
 ]
 
+{ #category : #querying }
+DLDataObject >> isFixPointForDirection: aSelector [
+	
+	^ self == (aSelector value: self)
+]
+
 { #category : #accessing }
 DLDataObject >> left [
 	^ we previousLink value
 ]
 
 { #category : #accessing }
+DLDataObject >> nsLink [
+	^ ns
+]
+
+{ #category : #accessing }
 DLDataObject >> right [
 	^ we nextLink value
+]
+
+{ #category : #iterating }
+DLDataObject >> untilFixPointForDirection: aSelector do: aBlockClosure [ 
+	|j|
+	j := (aSelector value: self).
+	[   j == self ] whileFalse: [ aBlockClosure value: j . j := aSelector value: j ]
 ]
 
 { #category : #accessing }

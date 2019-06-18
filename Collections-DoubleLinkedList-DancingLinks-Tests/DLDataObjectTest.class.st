@@ -5,11 +5,7 @@ Class {
 }
 
 { #category : #tests }
-DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
-	| grid |
-	grid := DLDataObject
-		gridOn:
-			{(1 @ 3).
+DLDataObjectTest >> knuthFirstExampleIndicators [ ^{(1 @ 3).
 			(1 @ 5).
 			(1 @ 6).
 			(2 @ 1).
@@ -24,8 +20,27 @@ DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
 			(5 @ 7).
 			(6 @ 4).
 			(6 @ 5).
-			(6 @ 7)}.
-	(self viewGrid: grid) inspect
+			(6 @ 7)}
+]
+
+{ #category : #tests }
+DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
+	| grid alg sols setOfSets |
+	grid := DLDataObject gridOn: self knuthFirstExampleIndicators.
+	alg := AlgorithmX onDLRootObject: (grid at: #root).
+	sols := LinkedList new.
+	alg addSolutionsTo: sols.
+	setOfSets := Set new.
+	sols
+		do: [ :aDict | 
+			aDict
+				valuesDo: [ :aDLDataObject | setOfSets add: aDLDataObject asColumnsSet ] ].
+	self
+		assert: setOfSets
+		equals:
+			{{'C7' . 'C2'} asSet.
+			{'C4' . 'C1'} asSet.
+			{'C6' . 'C3' . 'C5'} asSet} asSet
 ]
 
 { #category : #tests }

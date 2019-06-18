@@ -8,9 +8,15 @@ Class {
 	#category : #'Collections-DoubleLinkedList-DancingLinks'
 }
 
-{ #category : #'modifier state' }
-DLColumnObject >> incrementSize [
-	size := size + 1
+{ #category : #modifying }
+DLColumnObject >> cover [
+	we remove.
+	self untilFixPointForDirection: #down do: [ :i |
+		i untilFixPointForDirection: #right do: [ :j |
+			j nsLink remove.
+			j column updateSize: [:s | s -1].
+			 ]
+		 ] 
 ]
 
 { #category : #accessing }
@@ -31,4 +37,22 @@ DLColumnObject >> size [
 { #category : #accessing }
 DLColumnObject >> size: anInteger [ 
 	size := anInteger
+]
+
+{ #category : #modifying }
+DLColumnObject >> uncover [
+	self
+		untilFixPointForDirection: #up
+		do: [ :i | 
+			i
+				untilFixPointForDirection: #left
+				do: [ :j | 
+					j column updateSize: [ :s | s + 1 ].
+					j nsLink restore ] ].
+			we restore.
+]
+
+{ #category : #'modifier state' }
+DLColumnObject >> updateSize: aBlock [
+	size := aBlock value: size
 ]
