@@ -28,11 +28,6 @@ DLRootObject >> down [
 ]
 
 { #category : #accessing }
-DLRootObject >> name [
-	self shouldNotImplement
-]
-
-{ #category : #accessing }
 DLRootObject >> size [
 	self shouldNotImplement 
 ]

@@ -23,9 +23,12 @@ AlgorithmX >> search: k addInto: aCollection forDLDataObject: r [
 	sol
 		with: k -> r
 		enter: [ r untilFixPointForDirection: #right do: [ :j | j column cover ] ]
-		do: [ self search: k + 1 addInto: aCollection forDLRootObject: r column root]
+		do: [ self
+				search: k + 1
+				addInto: aCollection
+				forDLRootObject: r column root ]
 		exit:
-			[ :rr | rr untilFixPointForDirection: #left do: [ :j | j column uncover ] ]
+			[ r untilFixPointForDirection: #left do: [ :j | j column uncover ] ]
 ]
 
 { #category : #searching }
@@ -40,9 +43,14 @@ AlgorithmX >> search: k addInto: aCollection forDLRootObject: h [
 
 { #category : #searching }
 AlgorithmX >> solutionsFor: h [
-	| sols |
+	| sols setOfSets |
 	sol := Dictionary new.
 	sols := LinkedList new.
 	self search: 0 addInto: sols forDLRootObject: h.
-	^ sols
+	setOfSets := Set new.
+	sols
+		do: [ :aDict | 
+			aDict
+				valuesDo: [ :aDLDataObject | setOfSets add: aDLDataObject asColumnsSet ] ].
+	^ setOfSets
 ]

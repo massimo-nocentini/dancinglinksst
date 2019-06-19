@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'ns',
 		'we',
-		'column'
+		'column',
+		'point'
 	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks'
 }
@@ -27,9 +28,7 @@ DLDataObject class >> gridOn: aCollection [
 			column := columns
 				at: aPoint y
 				ifAbsentPut: [ | headerObj newColumn |
-					headerObj := DLColumnObject new
-						name: 'C' , aPoint y asString;
-						size: 0;
+					headerObj := DLColumnObject new						size: 0;
 						root: rootObj;
 						yourself.
 					newColumn := DoubleLinkedList new.
@@ -41,6 +40,7 @@ DLDataObject class >> gridOn: aCollection [
 			columnObj := column first.
 			dataObj := DLDataObject new
 				column: columnObj;
+				point: aPoint;
 				yourself.
 			row := rows at: aPoint x ifAbsentPut: [ DoubleLinkedList new ].
 			dataObj
@@ -64,8 +64,7 @@ DLDataObject >> addInDoubleLinkedList: aDoubleLinkedList direction: aSymbol [
 { #category : #accessing }
 DLDataObject >> asColumnsSet [
 	| set r getter |
-	
-	getter := [ :o | o column name ].
+	getter := [ :o | o point ].
 	r := self.
 	set := Set with: (getter value: r).
 	[ r := r right.
@@ -102,6 +101,16 @@ DLDataObject >> left [
 { #category : #accessing }
 DLDataObject >> nsLink [
 	^ ns
+]
+
+{ #category : #accessing }
+DLDataObject >> point [
+	^ point
+]
+
+{ #category : #accessing }
+DLDataObject >> point: anObject [
+	point := anObject
 ]
 
 { #category : #accessing }

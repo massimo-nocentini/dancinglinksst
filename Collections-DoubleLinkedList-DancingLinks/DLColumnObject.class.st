@@ -21,16 +21,6 @@ DLColumnObject >> cover [
 ]
 
 { #category : #accessing }
-DLColumnObject >> name [
-	^ name
-]
-
-{ #category : #accessing }
-DLColumnObject >> name: aString [ 
-	name := aString
-]
-
-{ #category : #accessing }
 DLColumnObject >> root [
 	^ root
 ]

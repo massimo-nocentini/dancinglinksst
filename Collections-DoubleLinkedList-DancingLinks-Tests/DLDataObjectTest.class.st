@@ -25,21 +25,26 @@ DLDataObjectTest >> knuthFirstExampleIndicators [ ^{(1 @ 3).
 
 { #category : #tests }
 DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
-	| grid alg sols setOfSets |
+	| grid  setOfSets |
 	grid := DLDataObject gridOn: self knuthFirstExampleIndicators.
-	alg := AlgorithmX new.
-	sols := alg solutionsFor: (grid at: #root).
-	setOfSets := Set new.
-	sols
-		do: [ :aDict | 
-			aDict
-				valuesDo: [ :aDLDataObject | setOfSets add: aDLDataObject asColumnsSet ] ].
+
+	setOfSets := AlgorithmX new solutionsFor: (grid at: #root).
 	self
-		assert: setOfSets
+		assert: setOfSets asSet
 		equals:
-			{{'C7' . 'C2'} asSet.
-			{'C4' . 'C1'} asSet.
-			{'C6' . 'C3' . 'C5'} asSet} asSet
+			{{(5 @ 7).
+			(5 @ 2)} asSet.
+			{(4 @ 4).
+			(4 @ 1)} asSet.
+			{(1 @ 6).
+			(1 @ 3).
+			(1 @ 5)} asSet} asSet.
+	self
+		assert: (setOfSets flatCollectAsSet: [ :aSet | (aSet collect: #x) asSet ])
+		equals: {1 . 4 . 5} asSet.
+	self
+		assert: (setOfSets flatCollectAsSet: [ :aSet | aSet collect: #y ])
+		equals: (1 to: 7) asSet
 ]
 
 { #category : #tests }
