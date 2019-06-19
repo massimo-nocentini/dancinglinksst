@@ -30,6 +30,7 @@ DLDataObject class >> gridOn: aCollection [
 					headerObj := DLColumnObject new
 						name: 'C' , aPoint y asString;
 						size: 0;
+						root: rootObj;
 						yourself.
 					newColumn := DoubleLinkedList new.
 					headerObj
@@ -45,12 +46,12 @@ DLDataObject class >> gridOn: aCollection [
 			dataObj
 				addInDoubleLinkedList: column direction: #ns;
 				addInDoubleLinkedList: row direction: #we.
-			columnObj updateSize: [:s | s +1].
+			columnObj updateSize: [ :s | s + 1 ].
 			allObjs at: aPoint put: dataObj ].
 	headers makeCircular.
 	columns valuesDo: #makeCircular.
 	rows valuesDo: #makeCircular.
-	^ allObjs 
+	^ allObjs
 ]
 
 { #category : #accessing }

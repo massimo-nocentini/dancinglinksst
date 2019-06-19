@@ -3,7 +3,8 @@ Class {
 	#superclass : #DLDataObject,
 	#instVars : [
 		'size',
-		'name'
+		'name',
+		'root'
 	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks'
 }
@@ -27,6 +28,16 @@ DLColumnObject >> name [
 { #category : #accessing }
 DLColumnObject >> name: aString [ 
 	name := aString
+]
+
+{ #category : #accessing }
+DLColumnObject >> root [
+	^ root
+]
+
+{ #category : #accessing }
+DLColumnObject >> root: anObject [
+	root := anObject
 ]
 
 { #category : #accessing }

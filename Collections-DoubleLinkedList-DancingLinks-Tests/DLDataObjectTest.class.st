@@ -27,9 +27,8 @@ DLDataObjectTest >> knuthFirstExampleIndicators [ ^{(1 @ 3).
 DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
 	| grid alg sols setOfSets |
 	grid := DLDataObject gridOn: self knuthFirstExampleIndicators.
-	alg := AlgorithmX onDLRootObject: (grid at: #root).
-	sols := LinkedList new.
-	alg addSolutionsTo: sols.
+	alg := AlgorithmX new.
+	sols := alg solutionsFor: (grid at: #root).
 	setOfSets := Set new.
 	sols
 		do: [ :aDict | 

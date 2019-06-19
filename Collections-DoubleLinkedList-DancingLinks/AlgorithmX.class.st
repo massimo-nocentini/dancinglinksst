@@ -2,49 +2,47 @@ Class {
 	#name : #AlgorithmX,
 	#superclass : #Object,
 	#instVars : [
-		'h',
 		'sol'
 	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks'
 }
 
-{ #category : #creating }
-AlgorithmX class >> onDLRootObject: aDLRootObject [ 
-	^ self new h: aDLRootObject ; yourself.
+{ #category : #searching }
+AlgorithmX >> search: k addInto: aCollection forDLColumnObject: c [
+	c cover.
+	c
+		untilFixPointForDirection: #down
+		do: [ :r | 
+			self search: k addInto: aCollection forDLDataObject: r
+		 ].
+	c uncover
 ]
 
 { #category : #searching }
-AlgorithmX >> addSolutionsTo: aCollection [
-
-	self search: 0 addInto: aCollection
-]
-
-{ #category : #accessing }
-AlgorithmX >> h: aDLRootObject [ 
-	h := aDLRootObject
-]
-
-{ #category : #searching }
-AlgorithmX >> initialize [ 
-	sol := Dictionary new.
+AlgorithmX >> search: k addInto: aCollection forDLDataObject: r [
+	sol
+		with: k -> r
+		enter: [ r untilFixPointForDirection: #right do: [ :j | j column cover ] ]
+		do: [ self search: k + 1 addInto: aCollection forDLRootObject: r column root]
+		exit:
+			[ :rr | rr untilFixPointForDirection: #left do: [ :j | j column uncover ] ]
 ]
 
 { #category : #searching }
-AlgorithmX >> search: k addInto: aCollection [
+AlgorithmX >> search: k addInto: aCollection forDLRootObject: h [
 	(h isFixPointForDirection: #right)
 		ifTrue: [ aCollection add: sol copy ]
-		ifFalse: [ | c |
-			c := h chooseColumn.
-			c cover.
-			c
-				untilFixPointForDirection: #down
-				do: [ :r | 
-					sol at: k put: r.
-					r untilFixPointForDirection: #right do: [ :j | j column cover ].
-					self search: k + 1 addInto: aCollection.
-					(sol at: k)
-						untilFixPointForDirection: #left
-						do: [ :j | j column uncover ].
-					 ].
-				c uncover ]
+		ifFalse: [ self
+				search: k
+				addInto: aCollection
+				forDLColumnObject: h chooseColumn ]
+]
+
+{ #category : #searching }
+AlgorithmX >> solutionsFor: h [
+	| sols |
+	sol := Dictionary new.
+	sols := LinkedList new.
+	self search: 0 addInto: sols forDLRootObject: h.
+	^ sols
 ]
