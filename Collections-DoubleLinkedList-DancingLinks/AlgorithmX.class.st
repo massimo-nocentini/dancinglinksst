@@ -34,7 +34,7 @@ AlgorithmX >> search: k addInto: aCollection forDLDataObject: r [
 { #category : #searching }
 AlgorithmX >> search: k addInto: aCollection forDLRootObject: h [
 	(h isFixPointForDirection: #right)
-		ifTrue: [ aCollection add: sol copy ]
+		ifTrue: [ aCollection add: sol copy . self halt.]
 		ifFalse: [ self
 				search: k
 				addInto: aCollection
