@@ -24,49 +24,61 @@ DLDataObjectTest >> emptySudokuIndicators [
 				boxConstraint := rowIndex
 					@ (27 * (row // 3) + (9 * (column // 3)) + value + (81 * 3)).
 				ones
-					add: cellConstraint + 1;
-					add: rowConstraint + 1;
-					add: columnConstraint + 1;
-					add: boxConstraint + 1 ] ] ].
+					add: cellConstraint + 1 -> model;
+					add: rowConstraint + 1 -> model;
+					add: columnConstraint + 1 -> model;
+					add: boxConstraint + 1  -> model] ] ].
 	ones.
-	matrix := Array2D rows: 9 ** 3 columns: 81 * 4 onesAt: ones.
+	matrix := Array2D rows: 9 ** 3 columns: 81 * 4 onesAt: (ones collect: #key).
 	^ ones
 ]
 
 { #category : #tests }
-DLDataObjectTest >> knuthFirstExampleIndicators [ ^{(1 @ 3).
-			(1 @ 5).
-			(1 @ 6).
-			(2 @ 1).
-			(2 @ 4).
-			(2 @ 7).
-			(3 @ 2).
-			(3 @ 3).
-			(3 @ 6).
-			(4 @ 1).
-			(4 @ 4).
-			(5 @ 2).
-			(5 @ 7).
-			(6 @ 4).
-			(6 @ 5).
-			(6 @ 7)}
+DLDataObjectTest >> knuthFirstExampleIndicators [
+	^ {(1 @ 3).
+	(1 @ 5).
+	(1 @ 6).
+	(2 @ 1).
+	(2 @ 4).
+	(2 @ 7).
+	(3 @ 2).
+	(3 @ 3).
+	(3 @ 6).
+	(4 @ 1).
+	(4 @ 4).
+	(5 @ 2).
+	(5 @ 7).
+	(6 @ 4).
+	(6 @ 5).
+	(6 @ 7)} collect: [ :each | each -> each x ]
 ]
 
 { #category : #tests }
 DLDataObjectTest >> testDLXonSudoku [
-	| grid setOfSets |
-	grid := DLDataObject gridOn: DLDataObjectTest new emptySudokuIndicators.
+	| grid setOfSets matrices |
+	grid := DLDataObject
+		gridOn: DLDataObjectTest new emptySudokuIndicators.
 	setOfSets := AlgorithmX new solutionsFor: (grid at: #root).
-	self halt
+	matrices := setOfSets
+		collect: [ :sol | 
+			| matrix |
+			matrix := Array2D rows: 9 columns: 9.
+			sol
+				do: [ :model | 
+					matrix
+						at: (model at: #x) + 1
+						at: (model at: #y) + 1
+						put: (model at: #v) + 1 ].
+					matrix ]
 ]
 
 { #category : #tests }
 DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
-	| grid  setOfSets |
+	| grid setOfSets |
 	grid := DLDataObject gridOn: self knuthFirstExampleIndicators.
-
 	setOfSets := AlgorithmX new solutionsFor: (grid at: #root).
-	self
+	self assert: setOfSets equals: (Set with: {1 . 4 . 5} asSet).
+	self "In order to check the following assertion we have to abstract the way DLDataObject objs are post-processed."
 		assert: setOfSets asSet
 		equals:
 			{{(5 @ 7).

@@ -43,6 +43,11 @@ AlgorithmX >> search: k addInto: aCollection forDLRootObject: h [
 
 { #category : #searching }
 AlgorithmX >> solutionsFor: h [
+^ self solutionsFor: h withPost: #yourself
+]
+
+{ #category : #searching }
+AlgorithmX >> solutionsFor: h withPost: aBlock [
 	| sols setOfSets |
 	sol := Dictionary new.
 	sols := LinkedList new.
@@ -50,7 +55,11 @@ AlgorithmX >> solutionsFor: h [
 	setOfSets := Set new.
 	sols
 		do: [ :aDict | 
+			| set |
+			set := Set new.
 			aDict
-				valuesDo: [ :aDLDataObject | setOfSets add: aDLDataObject asColumnsSet ] ].
+				valuesDo: [ :aDLDataObject | set add: (aBlock value: aDLDataObject model) ].
+			setOfSets add: set ].
+	
 	^ setOfSets
 ]

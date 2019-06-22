@@ -5,7 +5,8 @@ Class {
 		'ns',
 		'we',
 		'column',
-		'point'
+		'point',
+		'model'
 	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks'
 }
@@ -13,7 +14,12 @@ Class {
 { #category : #'instance creation' }
 DLDataObject class >> gridOn: aCollection [
 	| rootObj columns rows headers allObjs |
-	aCollection sort: [ :v :w | v y <= w y and: [ v x <= w x ] ].
+	aCollection
+		sort: [ :vAssoc :wAssoc | 
+			| v w |
+			v := vAssoc key.
+			w := wAssoc key.
+			v y <= w y and: [ v x <= w x ] ].
 	allObjs := Dictionary new.
 	headers := DoubleLinkedList new.
 	columns := Dictionary new.
@@ -23,12 +29,14 @@ DLDataObject class >> gridOn: aCollection [
 		yourself.
 	allObjs at: #root put: rootObj.
 	aCollection
-		do: [ :aPoint | 
-			| columnObj dataObj column row |
+		do: [ :anAssociation | 
+			| aPoint columnObj dataObj column row |
+			aPoint := anAssociation key.
 			column := columns
 				at: aPoint y
 				ifAbsentPut: [ | headerObj newColumn |
-					headerObj := DLColumnObject new						size: 0;
+					headerObj := DLColumnObject new
+						size: 0;
 						root: rootObj;
 						yourself.
 					newColumn := DoubleLinkedList new.
@@ -41,6 +49,7 @@ DLDataObject class >> gridOn: aCollection [
 			dataObj := DLDataObject new
 				column: columnObj;
 				point: aPoint;
+				model: anAssociation value;
 				yourself.
 			row := rows at: aPoint x ifAbsentPut: [ DoubleLinkedList new ].
 			dataObj
@@ -96,6 +105,16 @@ DLDataObject >> isFixPointForDirection: aSelector [
 { #category : #accessing }
 DLDataObject >> left [
 	^ we previousLink value
+]
+
+{ #category : #accessing }
+DLDataObject >> model [
+	^ model
+]
+
+{ #category : #accessing }
+DLDataObject >> model: anObject [
+	model := anObject
 ]
 
 { #category : #accessing }
