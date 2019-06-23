@@ -78,21 +78,29 @@ DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
 	grid := DLDataObject gridOn: self knuthFirstExampleIndicators.
 	setOfSets := AlgorithmX new solutionsFor: (grid at: #root).
 	self assert: setOfSets equals: (Set with: {1 . 4 . 5} asSet).
-	self "In order to check the following assertion we have to abstract the way DLDataObject objs are post-processed."
-		assert: setOfSets asSet
-		equals:
-			{{(5 @ 7).
-			(5 @ 2)} asSet.
-			{(4 @ 4).
-			(4 @ 1)} asSet.
-			{(1 @ 6).
-			(1 @ 3).
-			(1 @ 5)} asSet} asSet.
+	setOfSets := AlgorithmX new
+		solutionsFor: (grid at: #root)
+		withPost: [ :aDLDataObject | aDLDataObject asColumnsSet ].
 	self
-		assert: (setOfSets flatCollectAsSet: [ :aSet | (aSet collect: #x) asSet ])
+		assert: setOfSets
+		equals:
+			(Set
+				with:
+					{{(5 @ 7).
+					(5 @ 2)} asSet.
+					{(4 @ 4).
+					(4 @ 1)} asSet.
+					{(1 @ 6).
+					(1 @ 3).
+					(1 @ 5)} asSet} asSet).
+	self assert: setOfSets size equals: 1.
+	self
+		assert:
+			(setOfSets atRandom
+				flatCollectAsSet: [ :aSet | (aSet collect: #x) asSet ])
 		equals: {1 . 4 . 5} asSet.
 	self
-		assert: (setOfSets flatCollectAsSet: [ :aSet | aSet collect: #y ])
+		assert: (setOfSets atRandom flatCollectAsSet: [ :aSet | aSet collect: #y ])
 		equals: (1 to: 7) asSet
 ]
 

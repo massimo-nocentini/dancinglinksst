@@ -34,7 +34,7 @@ AlgorithmX >> search: k addInto: aCollection forDLDataObject: r [
 { #category : #searching }
 AlgorithmX >> search: k addInto: aCollection forDLRootObject: h [
 	(h isFixPointForDirection: #right)
-		ifTrue: [ aCollection add: sol copy . self halt.]
+		ifTrue: [ aCollection add: sol copy ]
 		ifFalse: [ self
 				search: k
 				addInto: aCollection
@@ -43,7 +43,7 @@ AlgorithmX >> search: k addInto: aCollection forDLRootObject: h [
 
 { #category : #searching }
 AlgorithmX >> solutionsFor: h [
-^ self solutionsFor: h withPost: #yourself
+	^ self solutionsFor: h withPost: [ :aDLDataObject | aDLDataObject model ]
 ]
 
 { #category : #searching }
@@ -58,8 +58,7 @@ AlgorithmX >> solutionsFor: h withPost: aBlock [
 			| set |
 			set := Set new.
 			aDict
-				valuesDo: [ :aDLDataObject | set add: (aBlock value: aDLDataObject model) ].
+				valuesDo: [ :aDLDataObject | set add: (aBlock value: aDLDataObject) ].
 			setOfSets add: set ].
-	
 	^ setOfSets
 ]
