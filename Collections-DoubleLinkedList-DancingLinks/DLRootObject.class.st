@@ -1,7 +1,7 @@
 Class {
 	#name : #DLRootObject,
 	#superclass : #DLColumnObject,
-	#category : #'Collections-DoubleLinkedList-DancingLinks'
+	#category : #'Collections-DoubleLinkedList-DancingLinks-dancing objects'
 }
 
 { #category : #accessing }

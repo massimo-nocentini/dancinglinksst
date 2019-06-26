@@ -6,7 +6,7 @@ Class {
 		'name',
 		'root'
 	],
-	#category : #'Collections-DoubleLinkedList-DancingLinks'
+	#category : #'Collections-DoubleLinkedList-DancingLinks-dancing objects'
 }
 
 { #category : #modifying }

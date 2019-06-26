@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'sol'
 	],
-	#category : #'Collections-DoubleLinkedList-DancingLinks'
+	#category : #'Collections-DoubleLinkedList-DancingLinks-exact cover'
 }
 
 { #category : #searching }
