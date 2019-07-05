@@ -39,10 +39,13 @@ DLDataObject class >> gridOn: aCollection [
 						size: 0;
 						root: rootObj;
 						yourself.
+					aPoint primary
+						ifTrue: [ headerObj addInDoubleLinkedList: headers direction: #we ]
+						ifFalse: [ DoubleLinkedList circular: [:dll | 
+							headerObj addInDoubleLinkedList: dll direction: #we].
+ ].
 					newColumn := DoubleLinkedList new.
-					headerObj
-						addInDoubleLinkedList: newColumn direction: #ns;
-						addInDoubleLinkedList: headers direction: #we.
+					headerObj addInDoubleLinkedList: newColumn direction: #ns.
 					allObjs at: aPoint y put: headerObj.
 					newColumn ].
 			columnObj := column first.
