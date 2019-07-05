@@ -1,43 +1,46 @@
 Class {
 	#name : #AlgorithmX,
 	#superclass : #Object,
-	#instVars : [
-		'sol'
-	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks-exact cover'
 }
 
 { #category : #searching }
-AlgorithmX >> search: k addInto: aCollection forDLColumnObject: c [
+AlgorithmX >> searchDepth: k partialSolution: sol collector: aBlock forDLColumnObject: c [
 	c cover.
 	c
-		untilFixPointForDirection: #down
+		untilFixPointOf: [:co | co down]
 		do: [ :r | 
-			self search: k addInto: aCollection forDLDataObject: r
-		 ].
+			self
+				searchDepth: k
+				partialSolution: sol
+				collector: aBlock
+				forDLDataObject: r ].
 	c uncover
 ]
 
 { #category : #searching }
-AlgorithmX >> search: k addInto: aCollection forDLDataObject: r [
+AlgorithmX >> searchDepth: k partialSolution: sol collector: aBlock forDLDataObject: r [
 	sol
 		with: k -> r
-		enter: [ r untilFixPointForDirection: #right do: [ :j | j column cover ] ]
+		enter: [ r
+				untilFixPointOf: [ :ro | ro right ]
+				do: [ :j | j column cover ] ]
 		do: [ self
-				search: k + 1
-				addInto: aCollection
+				searchDepth: k + 1
+				partialSolution: sol
+				collector: aBlock
 				forDLRootObject: r column root ]
-		exit:
-			[ r untilFixPointForDirection: #left do: [ :j | j column uncover ] ]
+		exit: [ r untilFixPointOf: [ :ro | ro left ] do: [ :j | j column uncover ] ]
 ]
 
 { #category : #searching }
-AlgorithmX >> search: k addInto: aCollection forDLRootObject: h [
-	(h isFixPointForDirection: #right)
-		ifTrue: [ aCollection add: sol copy ]
+AlgorithmX >> searchDepth: k partialSolution: sol collector: aBlock forDLRootObject: h [
+	^ (h isFixPointOf: [:ho | ho right])
+		ifTrue: [ aBlock value: sol copy ]
 		ifFalse: [ self
-				search: k
-				addInto: aCollection
+				searchDepth: k
+				partialSolution: sol
+				collector: aBlock
 				forDLColumnObject: h chooseColumn ]
 ]
 
@@ -48,17 +51,14 @@ AlgorithmX >> solutionsFor: h [
 
 { #category : #searching }
 AlgorithmX >> solutionsFor: h withPost: aBlock [
-	| sols setOfSets |
-	sol := Dictionary new.
-	sols := LinkedList new.
-	self search: 0 addInto: sols forDLRootObject: h.
-	setOfSets := Set new.
-	sols
-		do: [ :aDict | 
-			| set |
-			set := Set new.
-			aDict
-				valuesDo: [ :aDLDataObject | set add: (aBlock value: aDLDataObject) ].
-			setOfSets add: set ].
-	^ setOfSets
+	^ Generator
+		on: [ :generator | 
+			self
+				searchDepth: 0
+				partialSolution: Dictionary new
+				collector: [ :aDict | 
+					| subjects |
+					subjects := aDict values collect: aBlock.
+					generator yield: (Set withAll: subjects) ]
+				forDLRootObject: h ]
 ]

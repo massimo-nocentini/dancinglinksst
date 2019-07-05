@@ -97,7 +97,7 @@ DLDataObject >> down [
 ]
 
 { #category : #querying }
-DLDataObject >> isFixPointForDirection: aSelector [
+DLDataObject >> isFixPointOf: aSelector [
 	
 	^ self == (aSelector value: self)
 ]
@@ -138,7 +138,7 @@ DLDataObject >> right [
 ]
 
 { #category : #iterating }
-DLDataObject >> untilFixPointForDirection: aSelector do: aBlockClosure [ 
+DLDataObject >> untilFixPointOf: aSelector do: aBlockClosure [ 
 	|j|
 	j := (aSelector value: self).
 	[   j == self ] whileFalse: [ aBlockClosure value: j . j := aSelector value: j ]
