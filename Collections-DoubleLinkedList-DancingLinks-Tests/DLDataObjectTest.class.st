@@ -6,27 +6,26 @@ Class {
 
 { #category : #tests }
 DLDataObjectTest >> NQueensIndicators: n [
-	| ones matrix rowIndex |
-	rowIndex := 0.
+	| ones  |
 	ones := LinkedList new.
 	0 to: n - 1 do: [ :row | 
 		0 to: n - 1 do: [ :column | 
-			| rowConstraint columnConstraint diagonalConstraint antiDiagonalConstraint model |
+			|rowIndex rowConstraint columnConstraint diagonalConstraint antiDiagonalConstraint model |
 			model := Dictionary new
 				at: #x put: row;
 				at: #y put: column;
 				yourself.
+			rowIndex := n * row + column.
 			rowConstraint := rowIndex @ row.
 			columnConstraint := rowIndex @ (n + column).
 			diagonalConstraint := rowIndex @ (2 * n + (row + column)).
 			antiDiagonalConstraint := rowIndex
 				@ (2 * n + (2 * n) - 1 + (n - 1 - row + column)).
 			ones
-				add: ((rowConstraint + 1) asDLPoint primary: true)-> model;
-				add: ((columnConstraint + 1) asDLPoint primary: true)-> model;
-				add: ((diagonalConstraint + 1) asDLPoint secondary: true) -> model;
-				add: ((antiDiagonalConstraint + 1) asDLPoint secondary: true) -> model.
-			rowIndex := rowIndex + 1 ] ].
+				add: ((rowConstraint + 1) asDLPoint primary: true) -> model;
+				add: ((columnConstraint + 1) asDLPoint primary: true) -> model;
+				add: ((diagonalConstraint + 1) asDLPoint primary: false) -> model;
+				add: ((antiDiagonalConstraint + 1) asDLPoint primary: false) -> model.] ].
 	^ ones
 ]
 
@@ -82,12 +81,11 @@ DLDataObjectTest >> knuthFirstExampleIndicators [
 ]
 
 { #category : #tests }
-DLDataObjectTest >> testDLXonNQueens [
-	| n grid sols chain matrices |
-	n := 8.
+DLDataObjectTest >> runDLXonNQueens: n next: nel [
+	| grid sols chain matrices |
 	grid := DLDataObject gridOn: (self NQueensIndicators: n).
 	chain := AlgorithmX new solutionsFor: (grid at: #root).
-	sols := (chain next: 2) contents.
+	sols := (chain next: nel) contents.
 	matrices := sols
 		collect: [ :sol | 
 			| matrix |
@@ -96,25 +94,7 @@ DLDataObjectTest >> testDLXonNQueens [
 				do:
 					[ :model | matrix at: (model at: #x) + 1 at: (model at: #y) + 1 put: 1 ].
 			matrix ].
-	self
-		assert: matrices first printString
-		equals:
-			'(1 0 0 0 0 0 0 0
-0 0 0 0 1 0 0 0
-0 0 0 0 0 0 0 1
-0 0 0 0 0 1 0 0
-0 0 1 0 0 0 0 0
-0 0 0 0 0 0 1 0
-0 1 0 0 0 0 0 0
-0 0 0 1 0 0 0 0 )'.
-	self assert: matrices second printString equals: '(1 0 0 0 0 0 0 0
-0 0 0 0 0 1 0 0
-0 0 0 0 0 0 0 1
-0 0 1 0 0 0 0 0
-0 0 0 0 0 0 1 0
-0 0 0 1 0 0 0 0
-0 1 0 0 0 0 0 0
-0 0 0 0 1 0 0 0 )'
+		^ matrices
 ]
 
 { #category : #tests }
@@ -163,29 +143,130 @@ DLDataObjectTest >> testDLXonSudoku [
 ]
 
 { #category : #tests }
+DLDataObjectTest >> testDLXon_32Queens [
+	| matrices |
+	matrices := self runDLXonNQueens: 32 next: 2.
+	self
+		assert: matrices first printString
+		equals:
+			'(1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 )'.
+	self assert: matrices second printString equals: '(1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 )'
+]
+
+{ #category : #tests }
+DLDataObjectTest >> testDLXon_8Queens [
+	|  matrices |
+
+	matrices := self runDLXonNQueens: 8 next: 2.
+	self
+		assert: matrices first printString
+		equals:
+			'(1 0 0 0 0 0 0 0
+0 0 0 0 1 0 0 0
+0 0 0 0 0 0 0 1
+0 0 0 0 0 1 0 0
+0 0 1 0 0 0 0 0
+0 0 0 0 0 0 1 0
+0 1 0 0 0 0 0 0
+0 0 0 1 0 0 0 0 )'.
+	self
+		assert: matrices second printString
+		equals:
+			'(1 0 0 0 0 0 0 0
+0 0 0 0 0 1 0 0
+0 0 0 0 0 0 0 1
+0 0 1 0 0 0 0 0
+0 0 0 0 0 0 1 0
+0 0 0 1 0 0 0 0
+0 1 0 0 0 0 0 0
+0 0 0 0 1 0 0 0 )'
+]
+
+{ #category : #tests }
 DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
 	| grid setOfSets chain |
 	grid := DLDataObject gridOn: self knuthFirstExampleIndicators.
 	chain := AlgorithmX new solutionsFor: (grid at: #root).
 	setOfSets := chain contents asSet.
 	self assert: setOfSets equals: (Set with: {1 . 4 . 5} asSet).
-	chain :=  AlgorithmX new
+	chain := AlgorithmX new
 		solutionsFor: (grid at: #root)
 		withPost: [ :aDLDataObject | aDLDataObject asColumnsSet ].
-		setOfSets := chain contents asSet.
-	
+	setOfSets := chain contents asSet.
 	self
 		assert: setOfSets
 		equals:
 			(Set
 				with:
-					{{(5 @ 7).
-					(5 @ 2)} asSet.
-					{(4 @ 4).
-					(4 @ 1)} asSet.
-					{(1 @ 6).
+					{({(5 @ 7).
+					(5 @ 2)} collect: #asDLPoint) asSet.
+					({(4 @ 4).
+					(4 @ 1)}collect: #asDLPoint) asSet.
+					({(1 @ 6).
 					(1 @ 3).
-					(1 @ 5)} asSet} asSet).
+					(1 @ 5)}collect: #asDLPoint) asSet} asSet).
 	self assert: setOfSets size equals: 1.
 	self
 		assert:
