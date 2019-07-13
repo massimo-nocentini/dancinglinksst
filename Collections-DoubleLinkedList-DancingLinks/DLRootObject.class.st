@@ -9,7 +9,7 @@ DLRootObject >> chooseColumn [
 	| c s |
 	s := Float infinity.
 	self
-		untilFixPointOf: #right
+		untilFixPointOf: [:ro | ro right]
 		do: [ :j | 
 			j size < s
 				ifTrue: [ c := j.

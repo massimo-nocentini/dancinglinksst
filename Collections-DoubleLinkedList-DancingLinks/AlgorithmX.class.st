@@ -6,36 +6,40 @@ Class {
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k partialSolution: sol collector: aBlock forDLColumnObject: c [
-	c cover.
+	c coverWith: [ :cus | sol updatesWith: [ :us | us + cus ] ].
 	c
-		untilFixPointOf: [:co | co down]
+		untilFixPointOf: [ :co | co down ]
 		do: [ :r | 
 			self
 				searchDepth: k
 				partialSolution: sol
 				collector: aBlock
 				forDLDataObject: r ].
-	c uncover
+	c uncoverWith:  [ :uus | sol updatesWith: [ :us | us - uus ] ].
 ]
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k partialSolution: sol collector: aBlock forDLDataObject: r [
-	sol
+	sol substitution
 		with: k -> r
 		enter: [ r
 				untilFixPointOf: [ :ro | ro right ]
-				do: [ :j | j column cover ] ]
+				do:
+					[ :j | j column coverWith: [ :cus | sol updatesWith: [ :us | us + cus ] ] ] ]
 		do: [ self
 				searchDepth: k + 1
 				partialSolution: sol
 				collector: aBlock
 				forDLRootObject: r column root ]
-		exit: [ r untilFixPointOf: [ :ro | ro left ] do: [ :j | j column uncover ] ]
+		exit: [ r
+				untilFixPointOf: [ :ro | ro left ]
+				do:
+					[ :j | j column uncoverWith: [ :uus | sol updatesWith: [ :us | us - uus ] ] ] ]
 ]
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k partialSolution: sol collector: aBlock forDLRootObject: h [
-	^ (h isFixPointOf: [:ho | ho right])
+	^ (h isFixPointOf: [ :ro | ro right ])
 		ifTrue: [ aBlock value: sol copy ]
 		ifFalse: [ self
 				searchDepth: k
@@ -55,10 +59,14 @@ AlgorithmX >> solutionsFor: h withPost: aBlock [
 		on: [ :generator | 
 			self
 				searchDepth: 0
-				partialSolution: Dictionary new
-				collector: [ :aDict | 
+				partialSolution:
+					(DLSolution new
+						substitution: Dictionary new;
+						updates: 0;
+						yourself)
+				collector: [ :aSolution | 
 					| subjects |
-					subjects := aDict values collect: aBlock.
-					generator yield: (Set withAll: subjects) ]
+					subjects := aSolution substitution values collect: aBlock.
+					generator yield: (Set withAll: subjects) -> aSolution updates ]
 				forDLRootObject: h ]
 ]

@@ -11,13 +11,24 @@ Class {
 
 { #category : #modifying }
 DLColumnObject >> cover [
+	self coverWith: #yourself
+]
+
+{ #category : #modifying }
+DLColumnObject >> coverWith: aBlock [
+	| n |
 	we remove.
-	self untilFixPointOf: #down do: [ :i |
-		i untilFixPointOf: #right do: [ :j |
-			j nsLink remove.
-			j column updateSize: [:s | s -1].
-			 ]
-		 ] 
+	n := 1.	"One update happened in the line above"
+	self
+		untilFixPointOf: [ :co | co down ]
+		do: [ :i | 
+			i
+				untilFixPointOf: [ :do | do right ]
+				do: [ :j | 
+					j nsLink remove.
+					n := n + 1.
+					j column updateSize: [ :s | s - 1 ] ] ].
+			^ aBlock value: n
 ]
 
 { #category : #accessing }
@@ -42,15 +53,24 @@ DLColumnObject >> size: anInteger [
 
 { #category : #modifying }
 DLColumnObject >> uncover [
+	self uncoverWith: #yourself
+]
+
+{ #category : #modifying }
+DLColumnObject >> uncoverWith: aBlock [
+	| n |
+	n := 0.
 	self
-		untilFixPointOf: #up
+		untilFixPointOf: [ :co | co up ]
 		do: [ :i | 
 			i
-				untilFixPointOf: #left
+				untilFixPointOf: [ :do | do left ]
 				do: [ :j | 
-					j column updateSize: [ :s | s + 1 ].
-					j nsLink restore ] ].
-			we restore.
+					j nsLink restore.
+					n := n + 1.
+					j column updateSize: [ :s | s + 1 ] ] ].
+	we restore.
+	^ aBlock value: n + 1
 ]
 
 { #category : #'modifier state' }
