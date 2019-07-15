@@ -6,5 +6,12 @@ Class {
 
 { #category : #accessing }
 ZDDTerminalNode >> isZDDBottom [
- ^ model = false
+	^ self model not
+]
+
+{ #category : #accessing }
+ZDDTerminalNode >> sets [
+	^ self isZDDBottom
+		ifTrue: [ Set new ]
+		ifFalse: [ Set with: Set new ]
 ]

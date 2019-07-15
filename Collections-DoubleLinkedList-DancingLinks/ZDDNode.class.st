@@ -10,6 +10,18 @@ Class {
 }
 
 { #category : #accessing }
+ZDDNode class >> bottom [ 
+^ ZDDTerminalNode new model: false; yourself
+]
+
+{ #category : #accessing }
+ZDDNode class >> top [
+	^ ZDDTerminalNode new
+		model: true;
+		yourself
+]
+
+{ #category : #accessing }
 ZDDNode >> higher [
 	^ higher
 ]
@@ -42,4 +54,17 @@ ZDDNode >> model [
 { #category : #accessing }
 ZDDNode >> model: anObject [
 	model := anObject
+]
+
+{ #category : #accessing }
+ZDDNode >> sets [
+	| hi |
+	hi := self higher sets
+		collect: [ :l | 
+			l 
+				add: self model;
+				yourself ].
+	^ self lower sets
+		addAll: hi;
+		yourself
 ]

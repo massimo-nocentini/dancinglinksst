@@ -24,9 +24,7 @@ AlgorithmX >> resetWithGenerator: generator withBlock: aBlock [
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLColumnObject: c [
 	| x |
-	x := ZDDTerminalNode new
-		model: false;
-		yourself.
+	x := ZDDNode bottom.
 	c coverWith: [ :cus | sol updatesWith: [ :us | us + cus ] ].
 	c
 		untilFixPointOf: [ :co | co down ]
@@ -36,7 +34,13 @@ AlgorithmX >> searchDepth: k forDLColumnObject: c [
 			y isZDDBottom
 				ifFalse: [ | key |
 					key := Array with: r with: x model with: y model.
-					x := zDDTree at: key ifAbsentPut: [ ZDDNode new model: r; lower: x; higher: y; yourself ] ] ].
+					x := zDDTree
+						at: key
+						ifAbsentPut: [ ZDDNode new
+								model: r;
+								lower: x;
+								higher: y;
+								yourself ] ] ].
 	c uncoverWith: [ :uus | sol updatesWith: [ :us | us - uus ] ].
 	^ x
 ]
@@ -91,7 +95,5 @@ AlgorithmX >> yieldSolution: aSolution onGenerator: generator withBlock: aBlock 
 	| subjects |
 	subjects := aSolution substitution values collect: aBlock.
 	generator yield: (Set withAll: subjects) -> aSolution updates.
-	^ZDDTerminalNode new
-		model: true;
-		yourself
+	^ ZDDNode top
 ]
