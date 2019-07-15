@@ -95,6 +95,11 @@ DLDataObject >> column: aDLColumnObject [
 ]
 
 { #category : #accessing }
+DLDataObject >> columns [
+^	self untilFixPointOf: [ :do | do right ] collect: #yourself
+]
+
+{ #category : #accessing }
 DLDataObject >> down [
 	^ ns nextLink value
 ]
@@ -141,10 +146,21 @@ DLDataObject >> right [
 ]
 
 { #category : #iterating }
-DLDataObject >> untilFixPointOf: aSelector do: aBlockClosure [ 
-	|j|
-	j := (aSelector value: self).
-	[   j == self ] whileFalse: [ aBlockClosure value: j . j := aSelector value: j ]
+DLDataObject >> untilFixPointOf: aSelector collect: aBlockClosure [
+	| j collection |
+	collection := LinkedList new.
+	j := aSelector value: self.
+	[ j == self ]
+		whileFalse: [ | v |
+			v := aBlockClosure value: j.
+			collection add: v.
+			j := aSelector value: j ].
+	^ collection asArray
+]
+
+{ #category : #iterating }
+DLDataObject >> untilFixPointOf: aSelector do: aBlockClosure [
+	self untilFixPointOf: aSelector  collect: aBlockClosure 
 ]
 
 { #category : #accessing }

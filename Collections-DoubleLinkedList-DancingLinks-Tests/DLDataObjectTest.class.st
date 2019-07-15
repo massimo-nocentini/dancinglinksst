@@ -247,13 +247,13 @@ DLDataObjectTest >> testDLXon_8Queens [
 	self
 		assert: matrices second key printString
 		equals:
-			'(1 0 0 0 0 0 0 0
+			'(0 1 0 0 0 0 0 0
+0 0 0 1 0 0 0 0
 0 0 0 0 0 1 0 0
 0 0 0 0 0 0 0 1
 0 0 1 0 0 0 0 0
+1 0 0 0 0 0 0 0
 0 0 0 0 0 0 1 0
-0 0 0 1 0 0 0 0
-0 1 0 0 0 0 0 0
 0 0 0 0 1 0 0 0 )'.
 	self assert: matrices second value equals: 224
 ]

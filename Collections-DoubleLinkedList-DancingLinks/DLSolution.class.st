@@ -5,7 +5,7 @@ Class {
 		'substitution',
 		'updates'
 	],
-	#category : #'Collections-DoubleLinkedList-DancingLinks-exact cover'
+	#category : #'Collections-DoubleLinkedList-DancingLinks-dancing objects'
 }
 
 { #category : #copying }
