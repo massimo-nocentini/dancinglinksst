@@ -30,6 +30,24 @@ DLDataObjectTest >> NQueensIndicators: n [
 ]
 
 { #category : #tests }
+DLDataObjectTest >> ZDDIndicators [
+	^ {(1 @ 1).
+	(1 @ 2).
+	(1 @ 3).
+	(1 @ 5).
+	(2 @ 1).
+	(2 @ 2).
+	(3 @ 4).
+	(3 @ 6).
+	(4 @ 3).
+	(4 @ 4).
+(4 @ 6).
+	(5 @ 3).
+	(5 @ 5).}
+		collect: [ :each | (each asDLPoint primary: true) -> each x ]
+]
+
+{ #category : #tests }
 DLDataObjectTest >> emptySudokuIndicators [
 	| ones start end matrix |
 	start := 0.
@@ -299,6 +317,43 @@ DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
 		equals: {1 . 4 . 5} asSet.
 	self
 		assert: (setOfSets atRandom key flatCollectAsSet: [ :aSet | aSet collect: #y ])
+		equals: (1 to: 7) asSet
+]
+
+{ #category : #tests }
+DLDataObjectTest >> testGridCreationOnZDDMatrix [
+	| grid setOfSets chain |
+	grid := DLDataObject gridOn: self ZDDIndicators.
+	chain := AlgorithmX new solutionsFor: (grid at: #root).
+	setOfSets := chain contents asSet.
+	"--------------------------------------------------------------------"
+	"To adjust"
+	self assert: setOfSets equals: (Set with: {1 . 4 . 5} asSet -> 17).
+	chain := AlgorithmX new
+		solutionsFor: (grid at: #root)
+		withPost: [ :aDLDataObject | aDLDataObject asColumnsSet ].
+	setOfSets := chain contents asSet.
+	self
+		assert: setOfSets
+		equals:
+			(Set
+				with:
+					{({(5 @ 7).
+					(5 @ 2)} collect: #asDLPoint) asSet.
+					({(4 @ 4).
+					(4 @ 1)} collect: #asDLPoint) asSet.
+					({(1 @ 6).
+					(1 @ 3).
+					(1 @ 5)} collect: #asDLPoint) asSet} asSet -> 17).
+	self assert: setOfSets size equals: 1.
+	self
+		assert:
+			(setOfSets atRandom key
+				flatCollectAsSet: [ :aSet | (aSet collect: #x) asSet ])
+		equals: {1 . 4 . 5} asSet.
+	self
+		assert:
+			(setOfSets atRandom key flatCollectAsSet: [ :aSet | aSet collect: #y ])
 		equals: (1 to: 7) asSet
 ]
 

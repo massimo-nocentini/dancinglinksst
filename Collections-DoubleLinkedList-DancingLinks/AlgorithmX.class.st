@@ -63,12 +63,11 @@ AlgorithmX >> searchDepth: k forDLDataObject: r [
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLRootObject: h [
 	^ (h isFixPointOf: [ :ro | ro right ])
-		ifTrue: [ self yieldSolution ]
-		ifFalse: [
-			
-			memo at: h columns  ifAbsentPut: [  
-			
-			 self searchDepth: k forDLColumnObject: h chooseColumn ]]
+		ifTrue: [ self yieldSolution.
+			ZDDNode top ]
+		ifFalse: [ memo
+				at: h columns asSet
+				ifAbsentPut: [ self searchDepth: k forDLColumnObject: h chooseColumn ] ]
 ]
 
 { #category : #searching }
@@ -88,7 +87,8 @@ AlgorithmX >> solutionsFor: h withPost: aBlock treeHandler: recvBlock [
 			| tree |
 			self resetWithGenerator: generator withBlock: aBlock.
 			tree := self searchDepth: 0 forDLRootObject: h.
-			recvBlock  value: tree ]
+			self halt.
+			recvBlock value: tree ]
 ]
 
 { #category : #searching }
@@ -100,6 +100,6 @@ AlgorithmX >> yieldSolution [
 AlgorithmX >> yieldSolution: aSolution onGenerator: generator withBlock: aBlock [
 	| subjects |
 	subjects := aSolution substitution values collect: aBlock.
-	generator yield: (Set withAll: subjects) -> aSolution updates.
-	^ ZDDNode top
+	^generator yield: (Set withAll: subjects) -> aSolution updates.
+	
 ]
