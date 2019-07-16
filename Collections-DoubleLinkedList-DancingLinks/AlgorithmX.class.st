@@ -78,11 +78,17 @@ AlgorithmX >> solutionsFor: h [
 
 { #category : #searching }
 AlgorithmX >> solutionsFor: h withPost: aBlock [
+	^ self solutionsFor: h withPost: aBlock treeHandler: [ :_| ]
+]
+
+{ #category : #searching }
+AlgorithmX >> solutionsFor: h withPost: aBlock treeHandler: recvBlock [
 	^ Generator
 		on: [ :generator | 
-			
+			| tree |
 			self resetWithGenerator: generator withBlock: aBlock.
-			self searchDepth: 0 forDLRootObject: h ]
+			tree := self searchDepth: 0 forDLRootObject: h.
+			recvBlock  value: tree ]
 ]
 
 { #category : #searching }

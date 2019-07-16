@@ -82,10 +82,10 @@ DLDataObjectTest >> knuthFirstExampleIndicators [
 
 { #category : #tests }
 DLDataObjectTest >> runDLXonNQueens: n next: nel [
-	| grid sols chain matrices |
+	| grid sols chain matrices tree |
 	grid := DLDataObject gridOn: (self NQueensIndicators: n).
 	chain := AlgorithmX new solutionsFor: (grid at: #root).
-	sols := (chain next: nel) contents.
+	sols := (nel ifNil: [ chain ] ifNotNil: [ chain next: nel ]) contents.
 	matrices := sols
 		collect: [ :sol | 
 			| matrix |
@@ -93,7 +93,7 @@ DLDataObjectTest >> runDLXonNQueens: n next: nel [
 			sol key
 				do:
 					[ :model | matrix at: (model at: #x) + 1 at: (model at: #y) + 1 put: 1 ].
-			matrix -> sol value].
+			matrix -> sol value ].
 	^ matrices
 ]
 
@@ -256,6 +256,16 @@ DLDataObjectTest >> testDLXon_8Queens [
 0 0 0 0 0 0 1 0
 0 0 0 0 1 0 0 0 )'.
 	self assert: matrices second value equals: 224
+]
+
+{ #category : #tests }
+DLDataObjectTest >> testDLXon_8Queens_all [
+	| matrices |
+	matrices := self runDLXonNQueens: 8 next: nil.
+	self assert: matrices size equals: 8.
+	self assert: matrices first value equals: 224.
+	self assert: matrices second value equals: 224.
+	self assert: matrices third value equals: 224
 ]
 
 { #category : #tests }
