@@ -8,14 +8,12 @@ Class {
 }
 
 { #category : #public }
-RTRoundedMultiLine >> bezierShapePoints: points
-										withColor: c
-										withWidth: w [
-										^(TRBezierShape new
-										color: c;
-										width: w;
-										points:points;
-										yourself)
+RTRoundedMultiLine >> bezierShape: shape points: points withColor: c withWidth: w [
+	^ shape
+		color: c;
+		width: w;
+		points: points;
+		yourself
 ]
 
 { #category : #public }
@@ -59,54 +57,54 @@ RTRoundedMultiLine >> composeShapeForPath: path
 
 { #category : #public }
 RTRoundedMultiLine >> composeShapes: shapes ofPath: path withRadius: r withColor: c withWidth: w [
-|multiShape lastButOnePoint|
-multiShape := TRCompositeShape new.
-			shapes do: [ :shape | multiShape addShape: shape ].
-			lastButOnePoint := path lastButOne y = path last y
-				ifTrue: [ r @ 0 ]
-				ifFalse: [ 0 @ r ].
-			multiShape
-				addShape:
-					(self
-						lineShapeFrom: path lastButOne + lastButOnePoint
-						to: path last
-						withColor: c
-						withWidth: w).
-		^	multiShape 
+	| multiShape lastButOnePoint |
+	multiShape := TRCompositeShape new.
+	shapes do: [ :shape | multiShape addShape: shape ].
+	lastButOnePoint := path lastButOne y = path last y
+		ifTrue: [ r @ 0 ]
+		ifFalse: [ 0 @ r ].
+	multiShape
+		addShape:
+			(self
+				lineShape: TRLineShape new from: path lastButOne + lastButOnePoint
+				to: path last
+				withColor: c
+				withWidth: w).
+	^ multiShape
 ]
 
 { #category : #public }
 RTRoundedMultiLine >> handleNorthEastFrom: prev to: current withRadius: r withColor: c withWidth: w [
-
-| mid1 mid2 points |
-							mid1 := current x @ (current y - r).
-							mid2 := (current x + r) @ current y.
-							points := Array with: mid1 with: current with: mid2.
-^							Array
-								with:
-									(self
-										lineShapeFrom: prev + (0 @ r)
-										to: mid1
-										withColor: c
-										withWidth: w)
-								with: (self bezierShapePoints: points withColor: c withWidth: w) 
-		
+	| mid1 mid2 points |
+	mid1 := current x @ (current y - r).
+	mid2 := (current x + r) @ current y.
+	points := Array with: mid1 with: current with: mid2.
+	^ Array
+		with:
+			(self
+				lineShape: TRLineShape new
+				from: prev + (0 @ r)
+				to: mid1
+				withColor: c
+				withWidth: w)
+		with: (self bezierShape: TRBezierShape new points: points withColor: c withWidth: w)
 ]
 
 { #category : #public }
 RTRoundedMultiLine >> handleSouthWestFrom: prev to: current withRadius: r withColor: c withWidth: w [
 	| mid1 mid2 points |
-							mid1 := (current x - r) @ current y.
-							mid2 := current x @ (current y + r).
-							points := Array with: mid1 with: current with: mid2.
-						^	Array
-								with:
-									(self
-										lineShapeFrom: prev + (r @ 0)
-										to: mid1
-										withColor: c
-										withWidth: w)
-								with: (self bezierShapePoints: points withColor: c withWidth: w) 
+	mid1 := (current x - r) @ current y.
+	mid2 := current x @ (current y + r).
+	points := Array with: mid1 with: current with: mid2.
+	^ Array
+		with:
+			(self
+				lineShape: TRLineShape new
+				from: prev + (r @ 0)
+				to: mid1
+				withColor: c
+				withWidth: w)
+		with: (self bezierShape: TRBezierShape new points: points withColor: c withWidth: w)
 ]
 
 { #category : #public }
@@ -116,8 +114,8 @@ RTRoundedMultiLine >> initialize [
 ]
 
 { #category : #public }
-RTRoundedMultiLine >> lineShapeFrom: fromPoint to: toPoint withColor: col withWidth: w [
-	^ TRLineShape new
+RTRoundedMultiLine >> lineShape: shape from: fromPoint to: toPoint withColor: col withWidth: w [
+	^ shape
 		from: fromPoint to: toPoint;
 		color: col;
 		width: w;
@@ -145,7 +143,7 @@ RTRoundedMultiLine >> trachelShapeFor: anEdge [
 	path := blockProducingPath value: fromPoint value: toPoint.
 	^ path size = 2
 		ifTrue: [ self
-				lineShapeFrom: path first
+				lineShape: TRLineShape new from: path first
 				to: path last
 				withColor: c
 				withWidth: w ]
@@ -153,7 +151,7 @@ RTRoundedMultiLine >> trachelShapeFor: anEdge [
 				composeShapeForPath: path
 				withRadius: r
 				withColor: c
-				withWidth: w. ]
+				withWidth: w ]
 ]
 
 { #category : #public }
