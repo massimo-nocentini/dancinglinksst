@@ -30,6 +30,24 @@ DLDataObjectTest >> NQueensIndicators: n [
 ]
 
 { #category : #tests }
+DLDataObjectTest >> ZDDIndicators [
+	^ {(1 @ 1).
+	(1 @ 2).
+	(1 @ 3).
+	(1 @ 5).
+	(2 @ 1).
+	(2 @ 2).
+	(3 @ 4).
+	(3 @ 6).
+	(4 @ 3).
+	(4 @ 4).
+(4 @ 6).
+	(5 @ 3).
+	(5 @ 5).}
+		collect: [ :each | (each asDLPoint primary: true) -> each x ]
+]
+
+{ #category : #tests }
 DLDataObjectTest >> emptySudokuIndicators [
 	| ones start end matrix |
 	start := 0.
@@ -82,19 +100,19 @@ DLDataObjectTest >> knuthFirstExampleIndicators [
 
 { #category : #tests }
 DLDataObjectTest >> runDLXonNQueens: n next: nel [
-	| grid sols chain matrices |
+	| grid sols chain matrices tree |
 	grid := DLDataObject gridOn: (self NQueensIndicators: n).
 	chain := AlgorithmX new solutionsFor: (grid at: #root).
-	sols := (chain next: nel) contents.
+	sols := (nel ifNil: [ chain ] ifNotNil: [ chain next: nel ]) contents.
 	matrices := sols
 		collect: [ :sol | 
 			| matrix |
 			matrix := Array2D rows: n columns: n element: 0.
-			sol
+			sol key
 				do:
 					[ :model | matrix at: (model at: #x) + 1 at: (model at: #y) + 1 put: 1 ].
-			matrix ].
-		^ matrices
+			matrix -> sol value ].
+	^ matrices
 ]
 
 { #category : #tests }
@@ -109,15 +127,15 @@ DLDataObjectTest >> testDLXonSudoku [
 		collect: [ :sol | 
 			| matrix |
 			matrix := Array2D rows: 9 columns: 9.
-			sol
+			sol key
 				do: [ :model | 
 					matrix
 						at: (model at: #x) + 1
 						at: (model at: #y) + 1
 						put: (model at: #v) + 1 ].
-			matrix ].
+			matrix -> sol value ].
 	self
-		assert: matrices first printString
+		assert: matrices first key printString
 		equals:
 			'(1 2 3 4 5 6 7 8 9
 7 8 9 1 2 3 4 5 6
@@ -128,8 +146,9 @@ DLDataObjectTest >> testDLXonSudoku [
 2 3 1 5 7 4 6 9 8
 9 6 8 2 3 1 5 7 4
 5 7 4 9 6 8 2 3 1 )'.
+	self assert: matrices first value equals: 2511.
 	self
-		assert: matrices second printString
+		assert: matrices second key printString
 		equals:
 			'(1 2 3 4 5 6 7 8 9
 7 8 9 1 2 3 4 5 6
@@ -139,7 +158,8 @@ DLDataObjectTest >> testDLXonSudoku [
 8 4 5 9 6 7 3 1 2
 2 3 1 5 7 4 6 9 8
 9 6 8 2 3 1 5 7 4
-5 7 4 6 9 8 2 3 1 )'
+5 7 4 6 9 8 2 3 1 )'.
+self assert: matrices second value equals: 2511
 ]
 
 { #category : #tests }
@@ -147,7 +167,7 @@ DLDataObjectTest >> testDLXon_32Queens [
 	| matrices |
 	matrices := self runDLXonNQueens: 32 next: 2.
 	self
-		assert: matrices first printString
+		assert: matrices first key printString
 		equals:
 			'(1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -181,8 +201,9 @@ DLDataObjectTest >> testDLXon_32Queens [
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 )'.
+	self assert: matrices first value equals: 3200.
 	self
-		assert: matrices second printString
+		assert: matrices second key printString
 		equals:
 			'(1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -216,21 +237,21 @@ DLDataObjectTest >> testDLXon_32Queens [
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 )'.
+self assert: matrices second value equals: 3200.
 	matrices
 		do:
-			[ :matrix | 1 to: matrix rowCount do: [ :row | self assert: (matrix atRow: row) sum equals: 1 ] ].
-		matrices
+			[ :matrix | 1 to: matrix key rowCount do: [ :row | self assert: (matrix key atRow: row) sum equals: 1 ] ].
+	matrices
 		do:
-			[ :matrix | 1 to: matrix columnCount do: [ :column | self assert: (matrix atColumn: column) sum equals: 1 ] ]
+			[ :matrix | 1 to: matrix key columnCount do: [ :column | self assert: (matrix key atColumn: column) sum equals: 1 ] ]
 ]
 
 { #category : #tests }
 DLDataObjectTest >> testDLXon_8Queens [
-	|  matrices |
-
+	| matrices |
 	matrices := self runDLXonNQueens: 8 next: 2.
 	self
-		assert: matrices first printString
+		assert: matrices first key printString
 		equals:
 			'(1 0 0 0 0 0 0 0
 0 0 0 0 1 0 0 0
@@ -240,17 +261,29 @@ DLDataObjectTest >> testDLXon_8Queens [
 0 0 0 0 0 0 1 0
 0 1 0 0 0 0 0 0
 0 0 0 1 0 0 0 0 )'.
+	self assert: matrices first value equals: 224.
 	self
-		assert: matrices second printString
+		assert: matrices second key printString
 		equals:
-			'(1 0 0 0 0 0 0 0
+			'(0 1 0 0 0 0 0 0
+0 0 0 1 0 0 0 0
 0 0 0 0 0 1 0 0
 0 0 0 0 0 0 0 1
 0 0 1 0 0 0 0 0
+1 0 0 0 0 0 0 0
 0 0 0 0 0 0 1 0
-0 0 0 1 0 0 0 0
-0 1 0 0 0 0 0 0
-0 0 0 0 1 0 0 0 )'
+0 0 0 0 1 0 0 0 )'.
+	self assert: matrices second value equals: 224
+]
+
+{ #category : #tests }
+DLDataObjectTest >> testDLXon_8Queens_all [
+	| matrices |
+	matrices := self runDLXonNQueens: 8 next: nil.
+	self assert: matrices size equals: 8.
+	self assert: matrices first value equals: 224.
+	self assert: matrices second value equals: 224.
+	self assert: matrices third value equals: 224
 ]
 
 { #category : #tests }
@@ -259,7 +292,7 @@ DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
 	grid := DLDataObject gridOn: self knuthFirstExampleIndicators.
 	chain := AlgorithmX new solutionsFor: (grid at: #root).
 	setOfSets := chain contents asSet.
-	self assert: setOfSets equals: (Set with: {1 . 4 . 5} asSet).
+	self assert: setOfSets equals: (Set with: {1 . 4 . 5} asSet -> 17).
 	chain := AlgorithmX new
 		solutionsFor: (grid at: #root)
 		withPost: [ :aDLDataObject | aDLDataObject asColumnsSet ].
@@ -272,18 +305,55 @@ DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
 					{({(5 @ 7).
 					(5 @ 2)} collect: #asDLPoint) asSet.
 					({(4 @ 4).
-					(4 @ 1)}collect: #asDLPoint) asSet.
+					(4 @ 1)} collect: #asDLPoint) asSet.
 					({(1 @ 6).
 					(1 @ 3).
-					(1 @ 5)}collect: #asDLPoint) asSet} asSet).
+					(1 @ 5)} collect: #asDLPoint) asSet} asSet -> 17).
 	self assert: setOfSets size equals: 1.
 	self
 		assert:
-			(setOfSets atRandom
+			(setOfSets atRandom key
 				flatCollectAsSet: [ :aSet | (aSet collect: #x) asSet ])
 		equals: {1 . 4 . 5} asSet.
 	self
-		assert: (setOfSets atRandom flatCollectAsSet: [ :aSet | aSet collect: #y ])
+		assert: (setOfSets atRandom key flatCollectAsSet: [ :aSet | aSet collect: #y ])
+		equals: (1 to: 7) asSet
+]
+
+{ #category : #tests }
+DLDataObjectTest >> testGridCreationOnZDDMatrix [
+	| grid setOfSets chain |
+	grid := DLDataObject gridOn: self ZDDIndicators.
+	chain := AlgorithmX new solutionsFor: (grid at: #root).
+	setOfSets := chain contents asSet.
+	"--------------------------------------------------------------------"
+	"To adjust"
+	self assert: setOfSets equals: (Set with: {1 . 4 . 5} asSet -> 17).
+	chain := AlgorithmX new
+		solutionsFor: (grid at: #root)
+		withPost: [ :aDLDataObject | aDLDataObject asColumnsSet ].
+	setOfSets := chain contents asSet.
+	self
+		assert: setOfSets
+		equals:
+			(Set
+				with:
+					{({(5 @ 7).
+					(5 @ 2)} collect: #asDLPoint) asSet.
+					({(4 @ 4).
+					(4 @ 1)} collect: #asDLPoint) asSet.
+					({(1 @ 6).
+					(1 @ 3).
+					(1 @ 5)} collect: #asDLPoint) asSet} asSet -> 17).
+	self assert: setOfSets size equals: 1.
+	self
+		assert:
+			(setOfSets atRandom key
+				flatCollectAsSet: [ :aSet | (aSet collect: #x) asSet ])
+		equals: {1 . 4 . 5} asSet.
+	self
+		assert:
+			(setOfSets atRandom key flatCollectAsSet: [ :aSet | aSet collect: #y ])
 		equals: (1 to: 7) asSet
 ]
 
