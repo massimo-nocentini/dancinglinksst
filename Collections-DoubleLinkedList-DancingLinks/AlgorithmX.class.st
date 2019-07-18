@@ -65,9 +65,17 @@ AlgorithmX >> searchDepth: k forDLRootObject: h [
 	^ (h isFixPointOf: [ :ro | ro right ])
 		ifTrue: [ self yieldSolution.
 			ZDDNode top ]
-		ifFalse: [ memo
+		ifFalse: [ | assoc |
+			assoc := memo
 				at: h columns asSet
-				ifAbsentPut: [ self searchDepth: k forDLColumnObject: h chooseColumn ] ]
+				ifPresent: [ :pair | 
+					sol := pair value.
+					pair ]
+				ifAbsentPut: [ | tree solution |
+					tree := self searchDepth: k forDLColumnObject: h chooseColumn.
+					solution := sol copy.
+					tree -> solution ].
+			assoc key ]
 ]
 
 { #category : #searching }
