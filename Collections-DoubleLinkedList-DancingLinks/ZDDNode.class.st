@@ -6,19 +6,31 @@ Class {
 		'lower',
 		'higher'
 	],
+	#classInstVars : [
+		'top',
+		'bottom'
+	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks-ZDD'
 }
 
 { #category : #accessing }
-ZDDNode class >> bottom [ 
-^ ZDDTerminalNode new model: false; yourself
+ZDDNode class >> bottom [
+	^ bottom
+]
+
+{ #category : #accessing }
+ZDDNode class >> initialize [
+	top := ZDDTerminalNode new
+		model: true;
+		yourself.
+		bottom := ZDDTerminalNode new
+				model: false;
+				yourself
 ]
 
 { #category : #accessing }
 ZDDNode class >> top [
-	^ ZDDTerminalNode new
-		model: true;
-		yourself
+	^ top
 ]
 
 { #category : #accessing }
@@ -66,5 +78,14 @@ ZDDNode >> sets [
 				yourself ].
 	^ self lower sets
 		addAll: hi;
+		yourself
+]
+
+{ #category : #accessing }
+ZDDNode >> subtree [
+	^ Set new
+		addAll: lower subtree;
+		add: self;
+		addAll: higher subtree;
 		yourself
 ]

@@ -15,3 +15,8 @@ ZDDTerminalNode >> sets [
 		ifTrue: [ Set new ]
 		ifFalse: [ Set with: Set new ]
 ]
+
+{ #category : #accessing }
+ZDDTerminalNode >> subtree [
+	^ Set with: self
+]

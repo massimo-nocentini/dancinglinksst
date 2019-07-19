@@ -237,7 +237,7 @@ DLDataObjectTest >> testDLXon_32Queens [
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 )'.
-self assert: matrices second value equals: 3200.
+self assert: matrices second value equals: 3191.
 	matrices
 		do:
 			[ :matrix | 1 to: matrix key rowCount do: [ :row | self assert: (matrix key atRow: row) sum equals: 1 ] ].
@@ -255,13 +255,13 @@ DLDataObjectTest >> testDLXon_8Queens [
 		equals:
 			'(1 0 0 0 0 0 0 0
 0 0 0 0 1 0 0 0
-0 0 0 0 0 0 0 1
+0 1 0 0 0 0 0 0
 0 0 0 0 0 1 0 0
 0 0 1 0 0 0 0 0
 0 0 0 0 0 0 1 0
 0 1 0 0 0 0 0 0
 0 0 0 1 0 0 0 0 )'.
-	self assert: matrices first value equals: 224.
+	self assert: matrices first value equals: 221.
 	self
 		assert: matrices second key printString
 		equals:
@@ -273,7 +273,7 @@ DLDataObjectTest >> testDLXon_8Queens [
 1 0 0 0 0 0 0 0
 0 0 0 0 0 0 1 0
 0 0 0 0 1 0 0 0 )'.
-	self assert: matrices second value equals: 224
+	self assert: matrices second value equals: 212
 ]
 
 { #category : #tests }
@@ -281,9 +281,14 @@ DLDataObjectTest >> testDLXon_8Queens_all [
 	| matrices |
 	matrices := self runDLXonNQueens: 8 next: nil.
 	self assert: matrices size equals: 8.
-	self assert: matrices first value equals: 224.
-	self assert: matrices second value equals: 224.
-	self assert: matrices third value equals: 224
+	self assert: matrices first value equals: 221.
+	self assert: matrices second value equals: 212.
+	self assert: matrices third value equals: 227.
+		self assert: matrices fourth value equals: 233.
+			self assert: matrices fifth value equals: 233.
+				self assert: matrices sixth value equals: 227.
+					self assert: matrices seventh value equals: 221.
+						self assert: matrices eighth value equals: 236		
 ]
 
 { #category : #tests }
@@ -328,7 +333,7 @@ DLDataObjectTest >> testGridCreationOnZDDMatrix [
 	setOfSets := chain contents asSet.
 	"--------------------------------------------------------------------"
 	"To adjust"
-	self assert: setOfSets equals: (Set with: {1 . 4 . 5} asSet -> 17).
+	self assert: setOfSets equals: (Set with: {1 . 3} asSet -> 14).
 	chain := AlgorithmX new
 		solutionsFor: (grid at: #root)
 		withPost: [ :aDLDataObject | aDLDataObject asColumnsSet ].
@@ -338,23 +343,22 @@ DLDataObjectTest >> testGridCreationOnZDDMatrix [
 		equals:
 			(Set
 				with:
-					{({(5 @ 7).
-					(5 @ 2)} collect: #asDLPoint) asSet.
-					({(4 @ 4).
-					(4 @ 1)} collect: #asDLPoint) asSet.
-					({(1 @ 6).
-					(1 @ 3).
-					(1 @ 5)} collect: #asDLPoint) asSet} asSet -> 17).
+					{({(3 @ 4).
+					(3 @ 6)} collect: #asDLPoint) asSet.
+					({(1 @ 1).
+					(1 @ 5).
+					(1 @ 2).
+					(1 @ 3)} collect: #asDLPoint) asSet.} asSet -> 14).
 	self assert: setOfSets size equals: 1.
 	self
 		assert:
 			(setOfSets atRandom key
 				flatCollectAsSet: [ :aSet | (aSet collect: #x) asSet ])
-		equals: {1 . 4 . 5} asSet.
+		equals: {1 . 3} asSet.
 	self
 		assert:
 			(setOfSets atRandom key flatCollectAsSet: [ :aSet | aSet collect: #y ])
-		equals: (1 to: 7) asSet
+		equals: (1 to: 6) asSet
 ]
 
 { #category : #tests }

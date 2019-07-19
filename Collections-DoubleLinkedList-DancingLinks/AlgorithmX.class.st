@@ -69,7 +69,7 @@ AlgorithmX >> searchDepth: k forDLRootObject: h [
 			assoc := memo
 				at: h columns asSet
 				ifPresent: [ :pair | 
-					sol := pair value.
+					sol := pair value copy.
 					pair ]
 				ifAbsentPut: [ | tree solution |
 					tree := self searchDepth: k forDLColumnObject: h chooseColumn.
@@ -85,7 +85,10 @@ AlgorithmX >> solutionsFor: h [
 
 { #category : #searching }
 AlgorithmX >> solutionsFor: h withPost: aBlock [
-	^ self solutionsFor: h withPost: aBlock treeHandler: [ :_| ]
+	^ self
+		solutionsFor: h
+		withPost: aBlock
+		treeHandler: [ :zdd |  ]
 ]
 
 { #category : #searching }
@@ -95,7 +98,7 @@ AlgorithmX >> solutionsFor: h withPost: aBlock treeHandler: recvBlock [
 			| tree |
 			self resetWithGenerator: generator withBlock: aBlock.
 			tree := self searchDepth: 0 forDLRootObject: h.
-			self halt.
+
 			recvBlock value: tree ]
 ]
 
