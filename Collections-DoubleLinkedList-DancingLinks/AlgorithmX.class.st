@@ -5,77 +5,58 @@ Class {
 		'collector',
 		'sol',
 		'memo',
-		'zDDTree'
+		'zDDTree',
+		'bottom',
+		'top'
 	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks-exact cover'
 }
 
 { #category : #searching }
 AlgorithmX >> resetWithGenerator: generator withBlock: aBlock [
+	zDDTree := Dictionary new.
+	memo := Dictionary new.
 	sol := DLSolution new
 		substitution: Dictionary new;
 		updates: 0;
 		yourself.
-		zDDTree := Dictionary new.
-			memo := Dictionary new.
+		bottom := ZDDNode bottom.
+		top := ZDDNode top.
 	collector := [ :aSolution | self yieldSolution: aSolution onGenerator: generator withBlock: aBlock ]
 ]
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLColumnObject: c [
 	| x |
-	x := ZDDNode bottom.
-	c coverWith: [ :cus | sol updatesWith: [ :us | us + cus ] ].
+	x := bottom.
+	c cover.
 	c
 		untilFixPointOf: [ :co | co down ]
 		do: [ :r | 
 			| y |
 			y := self searchDepth: k forDLDataObject: r.
-			y isZDDBottom
-				ifFalse: [ | key |
-					key := Array with: r with: x model with: y model.
-					x := zDDTree
-						at: key
-						ifAbsentPut: [ ZDDNode new
-								model: r;
-								lower: x;
-								higher: y;
-								yourself ] ] ].
-	c uncoverWith: [ :uus | sol updatesWith: [ :us | us - uus ] ].
+			y == bottom
+				ifFalse: [ x := self uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y] ].
+	c uncover.
 	^ x
 ]
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLDataObject: r [
-^	sol substitution
-		with: k -> r
-		enter: [ r
-				untilFixPointOf: [ :ro | ro right ]
-				do:
-					[ :j | j column coverWith: [ :cus | sol updatesWith: [ :us | us + cus ] ] ] ]
-		do: [ self searchDepth: k + 1 forDLRootObject: r column root ]
-		exit: [ r
-				untilFixPointOf: [ :ro | ro left ]
-				do:
-					[ :j | j column uncoverWith: [ :uus | sol updatesWith: [ :us | us - uus ] ] ] ]
+	| tree |
+	r untilFixPointOf: [ :ro | ro right ] do: [ :j | j column cover ].
+	tree := self searchDepth: k + 1 forDLRootObject: r column root.
+	r untilFixPointOf: [ :ro | ro left ] do: [ :j | j column uncover ].
+	^ tree
 ]
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLRootObject: h [
 	^ (h isFixPointOf: [ :ro | ro right ])
-		ifTrue: [ self yieldSolution.
-			ZDDNode top ]
-		ifFalse: [ | assoc |
-			assoc := memo
+		ifTrue: [ top ]
+		ifFalse: [ memo
 				at: h columns asSet
-				ifPresent: [ :pair | 
-					sol := pair value copy.
-					pair ]
-				ifAbsentPut: [ | tree solution |
-					tree := self searchDepth: k forDLColumnObject: h chooseColumn.
-					solution := sol copy.
-					tree -> solution ].
-			assoc key ]
+				ifAbsentPut: [ self searchDepth: k forDLColumnObject: h chooseColumn ] ]
 ]
 
 { #category : #searching }
@@ -93,17 +74,30 @@ AlgorithmX >> solutionsFor: h withPost: aBlock [
 
 { #category : #searching }
 AlgorithmX >> solutionsFor: h withPost: aBlock treeHandler: recvBlock [
-	^ Generator
-		on: [ :generator | 
 			| tree |
-			self resetWithGenerator: generator withBlock: aBlock.
+			self resetWithGenerator: nil withBlock: aBlock.
 			tree := self searchDepth: 0 forDLRootObject: h.
+			self halt.
+			^ top root
+]
 
-			recvBlock value: tree ]
+{ #category : #searching }
+AlgorithmX >> uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y [
+
+| key |
+					key := Array with: r with: x with: y.
+					^ zDDTree
+						at: key
+						ifAbsentPut: [ ZDDNode new
+								model: r;
+								lower: x;
+								higher: y;
+								yourself ]
 ]
 
 { #category : #searching }
 AlgorithmX >> yieldSolution [
+self halt.
 	^ collector value: sol copy
 ]
 

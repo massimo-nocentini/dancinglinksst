@@ -4,33 +4,24 @@ Class {
 	#instVars : [
 		'model',
 		'lower',
-		'higher'
-	],
-	#classInstVars : [
-		'top',
-		'bottom'
+		'higher',
+		'parent'
 	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks-ZDD'
 }
 
 { #category : #accessing }
 ZDDNode class >> bottom [
-	^ bottom
-]
-
-{ #category : #accessing }
-ZDDNode class >> initialize [
-	top := ZDDTerminalNode new
-		model: true;
+	^  ZDDTerminalNode new
+		model: false;
 		yourself.
-		bottom := ZDDTerminalNode new
-				model: false;
-				yourself
 ]
 
 { #category : #accessing }
 ZDDNode class >> top [
-	^ top
+	^  ZDDTerminalNode new
+		model: true;
+		yourself.
 ]
 
 { #category : #accessing }
@@ -40,12 +31,13 @@ ZDDNode >> higher [
 
 { #category : #accessing }
 ZDDNode >> higher: anObject [
-	higher := anObject
+	higher := anObject.
+	anObject parent: self.
 ]
 
 { #category : #accessing }
 ZDDNode >> isZDDBottom [
-^ false
+	^ false
 ]
 
 { #category : #accessing }
@@ -55,7 +47,9 @@ ZDDNode >> lower [
 
 { #category : #accessing }
 ZDDNode >> lower: anObject [
-	lower := anObject
+	lower := anObject.
+	
+	anObject parent: self
 ]
 
 { #category : #accessing }
@@ -69,14 +63,29 @@ ZDDNode >> model: anObject [
 ]
 
 { #category : #accessing }
+ZDDNode >> parent [
+	^ parent
+]
+
+{ #category : #accessing }
+ZDDNode >> parent: anObject [
+	parent := anObject
+]
+
+{ #category : #accessing }
+ZDDNode >> root [
+ ^ parent ifNil: [ self ] ifNotNil: [ parent root ]
+]
+
+{ #category : #accessing }
 ZDDNode >> sets [
 	| hi |
-	hi := self higher sets
+	hi := self higher sets copy
 		collect: [ :l | 
-			l 
+			l copy
 				add: self model;
 				yourself ].
-	^ self lower sets
+	^ self lower sets copy
 		addAll: hi;
 		yourself
 ]

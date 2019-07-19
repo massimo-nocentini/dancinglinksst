@@ -5,8 +5,27 @@ Class {
 }
 
 { #category : #accessing }
-ZDDTerminalNode >> isZDDBottom [
-	^ self model not
+ZDDTerminalNode >> initialize [ 
+parent := Set new.
+]
+
+{ #category : #accessing }
+ZDDTerminalNode >> isZDDBottom [ 
+^ model not
+]
+
+{ #category : #accessing }
+ZDDTerminalNode >> parent: anObject [
+
+	parent add: anObject
+]
+
+{ #category : #accessing }
+ZDDTerminalNode >> root [ 
+|s|
+	s := (parent collect: [:p | p root]) asSet.
+	self assert: s size =1.
+	^ s atRandom
 ]
 
 { #category : #accessing }
