@@ -36,6 +36,11 @@ ZDDNode >> higher: anObject [
 ]
 
 { #category : #accessing }
+ZDDNode >> isRoot [
+	^ self parent isNil 
+]
+
+{ #category : #accessing }
 ZDDNode >> isZDDBottom [
 	^ false
 ]
@@ -70,6 +75,14 @@ ZDDNode >> parent [
 { #category : #accessing }
 ZDDNode >> parent: anObject [
 	parent := anObject
+]
+
+{ #category : #accessing }
+ZDDNode >> pathToRoot [
+	^ OrderedCollection new
+		add: self;
+		addAll:( self isRoot ifTrue:[OrderedCollection new] ifFalse: [  self parent pathToRoot]);
+		yourself
 ]
 
 { #category : #accessing }

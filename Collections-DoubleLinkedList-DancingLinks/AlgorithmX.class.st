@@ -27,27 +27,29 @@ AlgorithmX >> resetWithGenerator: generator withBlock: aBlock [
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLColumnObject: c [
-	| x |
-	x := bottom.
-	c cover.
-	c
-		untilFixPointOf: [ :co | co down ]
-		do: [ :r | 
-			| y |
-			y := self searchDepth: k forDLDataObject: r.
-			y == bottom
-				ifFalse: [ x := self uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y] ].
-	c uncover.
-	^ x
+	^ self
+		onEnter: [ c cover ]
+		do: [ c
+				untilFixPointOf: [ :co | co down ]
+				foldr: [ :r :x | 
+					| y  |
+					y := self searchDepth: k forDLDataObject: r.
+					y isZDDBottom
+						ifTrue: [ x ]
+						ifFalse: [
+							self
+								uniqueNodeWithDLDataObject: r
+								withLowerNode: x
+								withHigherNode: y ].
+					 ]
+				init: bottom ]
+		onExit: [ c uncover ]
 ]
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLDataObject: r [
-	| tree |
-	r untilFixPointOf: [ :ro | ro right ] do: [ :j | j column cover ].
-	tree := self searchDepth: k + 1 forDLRootObject: r column root.
-	r untilFixPointOf: [ :ro | ro left ] do: [ :j | j column uncover ].
-	^ tree
+
+	^self onEnter: [ 	r untilFixPointOf: [ :ro | ro right ] do: [ :j | j column cover ] ] do: [ self searchDepth: k + 1 forDLRootObject: r column root ] onExit: [ r untilFixPointOf: [ :ro | ro left ] do: [ :j | j column uncover ]. ]
 ]
 
 { #category : #searching }
@@ -55,8 +57,9 @@ AlgorithmX >> searchDepth: k forDLRootObject: h [
 	^ (h isFixPointOf: [ :ro | ro right ])
 		ifTrue: [ top ]
 		ifFalse: [ memo
-				at: h columns asSet
-				ifAbsentPut: [ self searchDepth: k forDLColumnObject: h chooseColumn ] ]
+				at: h columns
+				ifAbsentPut: [ | tree |
+					tree := self searchDepth: k forDLColumnObject: h chooseColumn ] ]
 ]
 
 { #category : #searching }
