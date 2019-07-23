@@ -279,7 +279,7 @@ DLDataObjectTest >> testDLXon_8Queens [
 { #category : #tests }
 DLDataObjectTest >> testDLXon_8Queens_all [
 	| matrices |
-	matrices := self runDLXonNQueens: 16 next: nil.
+	matrices := self runDLXonNQueens: 8 next: nil.
 	self assert: matrices size equals: 8.
 	self assert: matrices first value equals: 221.
 	self assert: matrices second value equals: 212.

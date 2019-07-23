@@ -5,13 +5,29 @@ Class {
 }
 
 { #category : #accessing }
-ZDDTerminalNode >> initialize [ 
-parent := Set new.
+ZDDTerminalNode >> additionalParents [ 
+^ self parent
 ]
 
 { #category : #accessing }
-ZDDTerminalNode >> isZDDBottom [ 
-^ model not
+ZDDTerminalNode >> depth [
+	^ (parent collect: [ :p | p depth ]) max + 1
+]
+
+{ #category : #accessing }
+ZDDTerminalNode >> initialize [
+super initialize.
+	parent := Set new
+]
+
+{ #category : #accessing }
+ZDDTerminalNode >> isZDDBottom [
+	^ model = #ZDDBottom
+]
+
+{ #category : #accessing }
+ZDDTerminalNode >> isZDDTop [
+	^ model = #ZDDTop
 ]
 
 { #category : #accessing }

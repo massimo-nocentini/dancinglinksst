@@ -5,23 +5,36 @@ Class {
 		'model',
 		'lower',
 		'higher',
-		'parent'
+		'parent',
+		'additionalParents'
 	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks-ZDD'
 }
 
 { #category : #accessing }
 ZDDNode class >> bottom [
-	^  ZDDTerminalNode new
-		model: false;
-		yourself.
+	^ ZDDTerminalNode new
+		model: #ZDDBottom;
+		yourself
 ]
 
 { #category : #accessing }
 ZDDNode class >> top [
-	^  ZDDTerminalNode new
-		model: true;
-		yourself.
+	^ ZDDTerminalNode new
+		model: #ZDDTop;
+		yourself
+]
+
+{ #category : #accessing }
+ZDDNode >> additionalParents [
+^ additionalParents
+]
+
+{ #category : #visiting }
+ZDDNode >> depth [
+	^ self isRoot
+		ifTrue: [ 0 ]
+		ifFalse: [ self parent depth + 1 ]
 ]
 
 { #category : #accessing }
@@ -32,7 +45,11 @@ ZDDNode >> higher [
 { #category : #accessing }
 ZDDNode >> higher: anObject [
 	higher := anObject.
-	anObject parent: self.
+]
+
+{ #category : #accessing }
+ZDDNode >> initialize [
+	additionalParents := Set new
 ]
 
 { #category : #accessing }
@@ -46,6 +63,11 @@ ZDDNode >> isZDDBottom [
 ]
 
 { #category : #accessing }
+ZDDNode >> isZDDTop [
+^ false
+]
+
+{ #category : #accessing }
 ZDDNode >> lower [
 	^ lower
 ]
@@ -53,8 +75,6 @@ ZDDNode >> lower [
 { #category : #accessing }
 ZDDNode >> lower: anObject [
 	lower := anObject.
-	
-	anObject parent: self
 ]
 
 { #category : #accessing }
@@ -74,15 +94,8 @@ ZDDNode >> parent [
 
 { #category : #accessing }
 ZDDNode >> parent: anObject [
-	parent := anObject
-]
-
-{ #category : #accessing }
-ZDDNode >> pathToRoot [
-	^ OrderedCollection new
-		add: self;
-		addAll:( self isRoot ifTrue:[OrderedCollection new] ifFalse: [  self parent pathToRoot]);
-		yourself
+	parent ifNil:[
+	parent := anObject] ifNotNil: [ additionalParents add: anObject ]
 ]
 
 { #category : #accessing }

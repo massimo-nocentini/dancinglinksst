@@ -86,16 +86,19 @@ AlgorithmX >> solutionsFor: h withPost: aBlock treeHandler: recvBlock [
 
 { #category : #searching }
 AlgorithmX >> uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y [
-
-| key |
-					key := Array with: r with: x with: y.
-					^ zDDTree
-						at: key
-						ifAbsentPut: [ ZDDNode new
-								model: r;
-								lower: x;
-								higher: y;
-								yourself ]
+	| key |
+	key := Array with: r with: x with: y.
+	^ zDDTree
+		at: key
+		ifAbsentPut: [ | z |
+			z := ZDDNode new
+				model: r;
+				lower: x;
+				higher: y;
+				yourself.
+			 x parent: z .
+			 y parent: z .
+			z ]
 ]
 
 { #category : #searching }
