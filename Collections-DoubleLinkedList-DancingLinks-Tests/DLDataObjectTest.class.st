@@ -100,18 +100,25 @@ DLDataObjectTest >> knuthFirstExampleIndicators [
 
 { #category : #tests }
 DLDataObjectTest >> runDLXonNQueens: n next: nel [
-	| grid sols chain matrices tree |
+	| grid sols matrices |
 	grid := DLDataObject gridOn: (self NQueensIndicators: n).
-	chain := AlgorithmX new solutionsFor: (grid at: #root).
-	sols := (nel ifNil: [ chain ] ifNotNil: [ chain next: nel ]) contents.
+	sols := nel
+		ifNil: [ AlgorithmX new solutionsFor: (grid at: #root) ]
+		ifNotNil: [ | gen |
+			gen := Generator
+				on: [ :g | 
+					AlgorithmX new
+						solutionsFor: (grid at: #root)
+						onSolutionDo: [ :sel | g yield: sel ] ].
+			gen next: nel ].
 	matrices := sols
 		collect: [ :sol | 
 			| matrix |
 			matrix := Array2D rows: n columns: n element: 0.
-			sol key
+			sol
 				do:
 					[ :model | matrix at: (model at: #x) + 1 at: (model at: #y) + 1 put: 1 ].
-			matrix -> sol value ].
+			matrix ].
 	^ matrices
 ]
 
@@ -250,58 +257,67 @@ self assert: matrices second value equals: 3191.
 DLDataObjectTest >> testDLXon_8Queens [
 	| matrices |
 	matrices := self runDLXonNQueens: 8 next: 2.
+	self assert: matrices size equals: 2.
 	self
-		assert: matrices first key printString
+		assert: matrices first printString
 		equals:
-			'(1 0 0 0 0 0 0 0
-0 0 0 0 1 0 0 0
-0 1 0 0 0 0 0 0
-0 0 0 0 0 1 0 0
-0 0 1 0 0 0 0 0
-0 0 0 0 0 0 1 0
-0 1 0 0 0 0 0 0
-0 0 0 1 0 0 0 0 )'.
-	self assert: matrices first value equals: 221.
-	self
-		assert: matrices second key printString
-		equals:
-			'(0 1 0 0 0 0 0 0
+			'(0 0 0 0 0 0 0 1
 0 0 0 1 0 0 0 0
-0 0 0 0 0 1 0 0
-0 0 0 0 0 0 0 1
-0 0 1 0 0 0 0 0
 1 0 0 0 0 0 0 0
+0 0 1 0 0 0 0 0
+0 0 0 0 0 1 0 0
+0 1 0 0 0 0 0 0
 0 0 0 0 0 0 1 0
 0 0 0 0 1 0 0 0 )'.
-	self assert: matrices second value equals: 212
+	self
+		assert: matrices second printString
+		equals:
+			'(0 0 0 0 0 0 0 1
+0 0 1 0 0 0 0 0
+1 0 0 0 0 0 0 0
+0 0 0 0 0 1 0 0
+0 1 0 0 0 0 0 0
+0 0 0 0 1 0 0 0
+0 0 0 0 0 0 1 0
+0 0 0 1 0 0 0 0 )'
 ]
 
 { #category : #tests }
 DLDataObjectTest >> testDLXon_8Queens_all [
-	| matrices |
-	matrices := self runDLXonNQueens: 8 next: nil.
-	self assert: matrices size equals: 8.
-	self assert: matrices first value equals: 221.
-	self assert: matrices second value equals: 212.
-	self assert: matrices third value equals: 227.
-	self assert: matrices fourth value equals: 233.
-	self assert: matrices fifth value equals: 233.
-	self assert: matrices sixth value equals: 227.
-	self assert: matrices seventh value equals: 221.
-	self assert: matrices eighth value equals: 236
+	| gen grid byGen byTree |
+	grid := DLDataObject gridOn: (self NQueensIndicators: 8).
+	gen := Generator
+		on: [ :g | 
+			| tree |
+			tree := AlgorithmX new
+				solutionsFor: (grid at: #root)
+				onSolutionDo: [ :sel | g yield: sel asSet ].
+			byTree := tree sets collect: [ :aSet | aSet collect: #model ] ].
+	byGen := gen contents asSet.
+	self assert: byGen size equals: 92.
+	self assert: byGen equals: byTree
+]
+
+{ #category : #tests }
+DLDataObjectTest >> testDLXon_NQueens_sequence [
+	| seq |
+	seq := (1 to: 11)
+		collect: [ :i | (self runDLXonNQueens: i next: nil) size ].
+	self
+		assert: seq
+		equals: {1 . 0 . 0 . 2 . 10 . 4 . 40 . 92 . 352 . 724 . 2680}
 ]
 
 { #category : #tests }
 DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
-	| grid setOfSets chain |
+	| grid setOfSets zDD |
 	grid := DLDataObject gridOn: self knuthFirstExampleIndicators.
-	chain := AlgorithmX new solutionsFor: (grid at: #root).
-	setOfSets := chain contents asSet.
-	self assert: setOfSets equals: (Set with: {1 . 4 . 5} asSet -> 17).
-	chain := AlgorithmX new
-		solutionsFor: (grid at: #root)
-		withPost: [ :aDLDataObject | aDLDataObject asColumnsSet ].
-	setOfSets := chain contents asSet.
+	zDD := AlgorithmX new solutionsFor: (grid at: #root).
+	setOfSets := zDD sets.
+	self assert: setOfSets equals: (Set with: {1 . 4 . 5} asSet).
+	zDD := AlgorithmX new
+		solutionsFor: (grid at: #root).
+	setOfSets := zDD sets collect: [:aSet | aSet collect: [ :aDLDataObject | aDLDataObject asColumnsSet ]].
 	self
 		assert: setOfSets
 		equals:
@@ -321,7 +337,8 @@ DLDataObjectTest >> testGridCreationOnFirstKnuthMatrix [
 				flatCollectAsSet: [ :aSet | (aSet collect: #x) asSet ])
 		equals: {1 . 4 . 5} asSet.
 	self
-		assert: (setOfSets atRandom key flatCollectAsSet: [ :aSet | aSet collect: #y ])
+		assert:
+			(setOfSets atRandom key flatCollectAsSet: [ :aSet | aSet collect: #y ])
 		equals: (1 to: 7) asSet
 ]
 

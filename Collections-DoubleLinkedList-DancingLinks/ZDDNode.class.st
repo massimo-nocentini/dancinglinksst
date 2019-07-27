@@ -6,7 +6,8 @@ Class {
 		'lower',
 		'higher',
 		'parent',
-		'additionalParents'
+		'additionalParents',
+		'sets'
 	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks-ZDD'
 }
@@ -105,15 +106,16 @@ ZDDNode >> root [
 
 { #category : #accessing }
 ZDDNode >> sets [
+^sets ifNil: [
 	| hi |
-	hi := self higher sets copy
+	hi := self higher sets
 		collect: [ :l | 
 			l copy
 				add: self model;
 				yourself ].
-	^ self lower sets copy
+	sets := self lower sets copy
 		addAll: hi;
-		yourself
+		yourself]
 ]
 
 { #category : #accessing }
