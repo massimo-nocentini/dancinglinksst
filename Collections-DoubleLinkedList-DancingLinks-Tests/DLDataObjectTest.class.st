@@ -291,7 +291,7 @@ DLDataObjectTest >> testDLXon_8Queens_all [
 			| tree |
 			tree := AlgorithmX new
 				solutionsFor: (grid at: #root)
-				onSolutionDo: [ :sel | g yield: sel asSet ].
+				onSolutionDo: [ :sel | g yield: sel ].
 			byTree := tree sets collect: [ :aSet | aSet collect: #model ] ].
 	byGen := gen contents asSet.
 	self assert: byGen size equals: 92.
