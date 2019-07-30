@@ -12,7 +12,7 @@ Class {
 	#category : #'Collections-DoubleLinkedList-DancingLinks-exact cover'
 }
 
-{ #category : #searching }
+{ #category : #initalize }
 AlgorithmX >> initialize [
 	zDDTree := Dictionary new.
 	memo := Dictionary new.
@@ -21,9 +21,17 @@ AlgorithmX >> initialize [
 
 ]
 
-{ #category : #searching }
+{ #category : #'searching API' }
 AlgorithmX >> searchDLRootObject: h onSolutionDo: aBlock [
-	^ self searchDepth: 0 forDLRootObject: h partialSelection: aBlock
+	^ self
+		searchDepth: 0
+		forDLRootObject: h
+		partialSelection: [ :selLink | 
+			aBlock
+				value:
+					(LinkedList new
+						add: selLink;
+						asSet) ]
 ]
 
 { #category : #searching }
@@ -67,38 +75,17 @@ AlgorithmX >> searchDepth: k forDLDataObject: r partialSelection: cont [
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLRootObject: h partialSelection: cont [
 	^ (h isFixPointOf: [ :ro | ro right ])
-		ifTrue: [  self yieldTree: top onBlock: cont ]
+		ifTrue: [  self yieldNode: top onBlock: cont ]
 		ifFalse: [ memo
 				at: h columns
-				ifPresent: [ :tree | self yieldTree: tree onBlock: cont ]
+				ifPresent: [ :tree | self yieldNode: tree onBlock: cont ]
 				ifAbsentPut: [ self
 						searchDepth: k
 						forDLColumnObject: h right
 						partialSelection: cont ] ]
 ]
 
-{ #category : #searching }
-AlgorithmX >> solutionsFor: h [
-	| tree |
-	tree := self searchDLRootObject: h onSolutionDo: #yourself.	"Here we are not interested to 
-																					 do something on-the-fly."
-	^ tree sets collect: [ :aSet | aSet collect: #model ]
-]
-
-{ #category : #searching }
-AlgorithmX >> solutionsFor: h onSolutionDo: aBlock [
-	^ self
-		searchDepth: 0
-		forDLRootObject: h
-		partialSelection: [ :selLink | 
-			aBlock
-				value:
-					(LinkedList new
-						add: selLink;
-						asSet)  ]
-]
-
-{ #category : #searching }
+{ #category : #private }
 AlgorithmX >> uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y [
 	| key |
 	key := Array with: r with: x with: y.
@@ -115,8 +102,8 @@ AlgorithmX >> uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y [
 			z ]
 ]
 
-{ #category : #searching }
-AlgorithmX >> yieldTree: tree onBlock: cont [
+{ #category : #private }
+AlgorithmX >> yieldNode: tree onBlock: cont [
 	tree sets
 		collect: [ :each | (each collect: #model) as: LinkedList ]
 		thenDo: [ :sel | 
