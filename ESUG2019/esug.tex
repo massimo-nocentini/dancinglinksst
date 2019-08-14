@@ -1,0 +1,352 @@
+
+\documentclass{beamer}
+
+\usepackage{euler}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{minted}
+\usepackage[scaled=0.8]{beramono}
+\usepackage{CJKutf8}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+
+\usefonttheme[onlymath]{serif}
+
+\usemintedstyle{friendly}
+
+\setbeamertemplate{blocks}[rounded]
+
+%Information to be included in the title page:
+\title{Dancing Links\\\small{an educational pearl}}
+\author{Massimo Nocentini}
+\institute{University of Florence, Italy}
+\date{ESUG2019 }
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}[fragile]
+\frametitle{}
+\begin{minted}[fontsize=\small]{smalltalk}
+outline
+    ^ LinkedList new
+        add: 'me and motivations';
+        add: 'exact cover problem';
+        add: 'DoubleLink objs';
+        add: 'Dancing, Dancing...';
+        add: 'and even more Dancing!';
+        add: 'N-Queens and Sudoku problems';
+        yourself
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Hi!}
+\begin{Verbatim}[fontsize=\small]
+$ whoami
+Massimo Nocentini, PhD
+Mathematician (algebraic combinatorics, formal methods for algs)
+Programmer (automated reasoning, logics and symbolic comp)
+https://github.com/massimo-nocentini/dancinglinksst
+\end{Verbatim}
+\vfill
+In Donald's words (\url{https://arxiv.org/abs/cs/0011047}):
+\emph{
+Suppose $x$ points to an element of a doubly linked list;
+let $L[x]$ and $R[x]$ point to the predecessor and successor
+of that element. Then:
+\begin{displaymath}
+  L[R[x]] \leftarrow L[x],\quad R[L[x]] \leftarrow R[x] \quad(1)
+\end{displaymath}
+remove $x$ from the list; every programmer knows this.
+But comparatively few programmers have realized that
+\begin{displaymath}
+  L[R[x]] \leftarrow x,\quad R[L[x]] \leftarrow x \quad(2)
+\end{displaymath}
+will put $x$ back again, with no refs to the whole list at all.
+}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Main idea}
+In math a relation $P$ is usually characterized by
+\begin{displaymath}
+\forall a,b,c.\,P(a,b,c) \leftrightarrow a + b = c \quad\text{entails}\quad P(1,2,3)
+\end{displaymath}
+can be expressed using either the \textit{imperative style}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+a := 1.
+b := 2.
+c := a + b.
+Object assert: [ c = 3 ].
+\end{minted}
+or the \textit{functional style}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+Object assert: [
+    ([ :a :b | a + b ] value: 1 value: 2) = 3 ]
+\end{minted}
+or, finally, the \textit{declarative style}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+Object assert: [
+    [ :a :b :c | a + b = c ] value: 1 value: 2 value: 3 ]
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Chain subclass: \#Bottom}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+DoubleLink>>remove
+  nextLink ifNotNil: [ :next | next previousLink: previousLink ].
+  previousLink ifNotNil: [ :previous | previous nextLink: nextLink ]
+\end{minted}
+\vfill
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+DoubleLink>>restore
+  nextLink ifNotNil: [ :next | next previousLink: self ].
+  previousLink ifNotNil: [ :previous | previous nextLink: self ]
+\end{minted}
+\vfill
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+DoubleLinkedList>>makeCircular
+  head
+    ifNotNil: [ 
+      head previousLink: tail.
+      tail nextLink: head ]
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Chain subclass: \#Knot}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+searchDepth: k forDLRootObject: h partialSelection: cont
+  ^ (h isFixPointOf: [ :ro | ro right ])
+      ifTrue: [ self yieldNode: top onBlock: cont ]
+      ifFalse: [ 
+        memo
+          at: h columns
+          ifPresent: [ :tree | self yieldNode: tree onBlock: cont ]
+          ifAbsentPut: [ 
+            self
+              searchDepth: k
+              forDLColumnObject: h chooseColumn
+              partialSelection: cont ] ]
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+searchDepth: k forDLColumnObject: c partialSelection: sel
+  ^ self
+      onEnter: [ c cover ]
+      do: [ 
+        c
+          untilFixPointOf: [ :co | co up ]
+          foldr: [ :r :x | 
+            | y |
+            y := self searchDepth: k 
+                      forDLDataObject: r 
+                      partialSelection: sel.
+            y isZDDBottom
+                ifTrue: [ x ]
+                ifFalse: [ 
+                  self
+                    uniqueNodeWithDLDataObject: r
+                    withLowerNode: x
+                    withHigherNode: y ] ]
+          init: bottom ]
+      onExit: [ c uncover ]
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+searchDepth: k forDLDataObject: r partialSelection: cont
+  ^ self
+      onEnter: [ r untilFixPointOf: [ :ro | ro right ] 
+                   do: [ :j | j column cover ] ]
+      do: [ self
+              searchDepth: k + 1
+              forDLRootObject: r column root
+              partialSelection: [ :sel | 
+                cont
+                  value:
+                    (ValueLink new
+                      value: r model;
+                      nextLink: sel;
+                      yourself) ] ]
+      onExit: [ r untilFixPointOf: [ :ro | ro left ] 
+                  do: [ :j | j column uncover ] ]
+\end{minted}
+\end{frame}
+  
+\begin{frame}[fragile]
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+searchDLRootObject: h onSolutionDo: aBlock
+  ^ self
+      searchDepth: 0
+      forDLRootObject: h
+      partialSelection: [ :selLink | 
+        aBlock value: (LinkedList new add: selLink; asSet) ]
+\end{minted}
+\vfill
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+chooseColumn
+  | c s |
+  s := Float infinity.
+  self
+    untilFixPointOf: [ :ro | ro right ]
+    do: [ :j | 
+      j size < s
+        ifTrue: [ c := j.
+          s := j size ] ].
+  ^ c
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+coverWith: aBlock
+  | n |
+  we remove.
+  n := 1. "One update happened in the line above"
+  self
+    untilFixPointOf: [ :co | co down ]
+    do: [ :i | 
+      i
+        untilFixPointOf: [ :do | do right ]
+        do: [ :j | 
+          j nsLink remove.
+          n := n + 1.
+          j column updateSize: [ :s | s - 1 ] ] ].
+  ^ aBlock value: n
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+uncoverWith: aBlock
+  | n |
+  n := 0.
+  self
+    untilFixPointOf: [ :co | co up ]
+    do: [ :i | 
+      i
+        untilFixPointOf: [ :do | do left ]
+        do: [ :j | 
+          j nsLink restore.
+          n := n + 1.
+          j column updateSize: [ :s | s + 1 ] ] ].
+  we restore.
+  ^ aBlock value: n + 1
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+yieldNode: tree onBlock: cont
+  tree sets
+    collect: [ :each | (each collect: #model) as: LinkedList ]
+    thenDo: [ :sel | 
+      | link |
+      link := sel isEmpty ifTrue: [ nil ] ifFalse: [ sel firstLink ].
+      cont value: link ].
+  ^ tree
+\end{minted}
+\vfill
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y
+  | key |
+  key := Array with: r with: x with: y.
+  ^ zDDTree
+    at: key
+    ifAbsentPut: [ | z |
+      z := ZDDNode new model: r; lower: x; higher: y; yourself.
+      x parent: z.
+      y parent: z.
+      z ]
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+gridOn: aCollection
+  "to be contd ..."
+  | rootObj columns rows headers allObjs |
+  aCollection
+    sort: [ :vAssoc :wAssoc | 
+      | v w |
+      v := vAssoc key.
+      w := wAssoc key.
+      v y <= w y and: [ v x <= w x ] ].
+  allObjs := Dictionary new.
+  headers := DoubleLinkedList new.
+  columns := Dictionary new.
+  rows := Dictionary new.
+  rootObj := DLRootObject new
+    addInDoubleLinkedList: headers direction: #we;
+    yourself.
+  allObjs at: #root put: rootObj.
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+gridOn: aCollection
+  "...contd..."
+  aCollection
+    do: [ :anAssociation | 
+      | aPoint columnObj dataObj column row |
+      aPoint := anAssociation key.
+      column := columns
+        at: aPoint y
+        ifAbsentPut: [ | headerObj newColumn |
+          headerObj := DLColumnObject new size: 0; root: rootObj; yourself.
+          aPoint primary
+            ifTrue: [ headerObj addInDoubleLinkedList: headers 
+                                direction: #we ]
+            ifFalse: [ DoubleLinkedList
+                circular: [ :dll | headerObj addInDoubleLinkedList: dll 
+                                             direction: #we ] ].
+          newColumn := DoubleLinkedList new.
+          headerObj addInDoubleLinkedList: newColumn direction: #ns.
+          allObjs at: aPoint y put: headerObj.
+          newColumn ].
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+gridOn: aCollection
+  "...contd"
+      columnObj := column first.
+      dataObj := DLDataObject new
+        column: columnObj;
+        point: aPoint;
+        model: anAssociation value;
+        yourself.
+      row := rows at: aPoint x ifAbsentPut: [ DoubleLinkedList new ].
+      dataObj
+        addInDoubleLinkedList: column direction: #ns;
+        addInDoubleLinkedList: row direction: #we.
+      columnObj updateSize: [ :s | s + 1 ].
+      allObjs at: aPoint put: dataObj ].
+  headers makeCircular.
+  columns valuesDo: #makeCircular.
+  rows valuesDo: #makeCircular.
+  ^ allObjs
+\end{minted}
+\end{frame}
+
+
+\begin{frame}{ }
+\Huge Thanks!
+\end{frame}
+
+\end{document}
+
