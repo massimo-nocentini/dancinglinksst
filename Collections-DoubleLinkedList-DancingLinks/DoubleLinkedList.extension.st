@@ -10,6 +10,7 @@ DoubleLinkedList class >> circular: aBlock [
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks' }
 DoubleLinkedList >> makeCircular [
+	head ifNotNil: [ 
 	head previousLink: tail.
-	tail nextLink: head
+	tail nextLink: head]
 ]

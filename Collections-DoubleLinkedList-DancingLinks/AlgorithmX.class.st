@@ -81,7 +81,7 @@ AlgorithmX >> searchDepth: k forDLRootObject: h partialSelection: cont [
 				ifPresent: [ :tree | self yieldNode: tree onBlock: cont ]
 				ifAbsentPut: [ self
 						searchDepth: k
-						forDLColumnObject: h right
+						forDLColumnObject: h chooseColumn
 						partialSelection: cont ] ]
 ]
 
