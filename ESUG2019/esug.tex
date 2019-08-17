@@ -86,7 +86,39 @@ will put $x$ back again, with no refs to the whole list at all.
   constructs a Zero-suppressed BDD (ZDD) that represents the set of sols and it enables the efficient 
   use of memo cache to speed up the search.
 \end{itemize}
+\end{frame}
 
+\begin{frame}[fragile]
+\frametitle{Exact Cover $\in \mathcal{NP}$}
+Given a matrix of $0$s and $1$s, does it have a set of rows containing exactly one $1$ in each column?
+\begin{columns}
+     \begin{column}{.5\linewidth}
+      The problem with matrix
+      \begin{displaymath}
+       \left(\begin{array}{cccccc}
+         1 & 1 & 1 & 0 & 1 & 0 \\
+         1 & 1 & 0 & 0 & 0 & 0 \\
+         0 & 0 & 0 & 1 & 0 & 1 \\
+         0 & 0 & 1 & 1 & 0 & 1 \\
+         0 & 0 & 1 & 0 & 1 & 0 \\
+       \end{array}\right)
+      \end{displaymath}
+      has solutions $
+        \left\lbrace
+          \left\lbrace 1,3\right\rbrace,
+          \left\lbrace 2,5,3\right\rbrace
+        \right\rbrace
+        $.
+     \end{column}
+     \begin{column}{.5\linewidth}
+       \begin{tabular}{cc}
+          \includegraphics[width=3cm,height=5cm]{ZDD.png}
+       \end{tabular}
+     \end{column}
+   \end{columns}
+We can think of the columns as elements of a universe, and the rows as subsets of the universe; 
+then the problem is to cover the universe with disjoint subsets, $\mathcal{NP}$-complete even 
+when each row contains exactly three $1$s.
 \end{frame}
 
 
@@ -321,6 +353,118 @@ gridOn: aCollection
   rows valuesDo: #makeCircular.
   ^ allObjs
 \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Sudoku to Exact Cover reduction}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+emptySudokuIndicators
+  | ones start end |
+  start := 0. end := 8. ones := LinkedList new.
+  start to: end do: [ :row | 
+    start to: end do: [ :column | 
+      start to: end do: [ :value | 
+        | rowIndex cellConstraint rowConstraint 
+          columnConstraint boxConstraint model |
+        model := {(#x -> row). (#y -> column). (#v -> value)} asDictionary.
+        rowIndex := 81 * row + (9 * column) + value.
+        cellConstraint := rowIndex @ ((end + 1) * row + column).
+        rowConstraint := rowIndex @ (9 * row + value + 81).
+        columnConstraint := rowIndex @ (9 * column + value + (81 * 2)).
+        boxConstraint := rowIndex
+            @ (27 * (row // 3) + (9 * (column // 3)) + value + (81 * 3)).
+        ones
+          add: ((cellConstraint + 1) asDLPoint primary: true) -> model;
+          add: ((rowConstraint + 1) asDLPoint primary: true) -> model;
+          add: ((columnConstraint + 1) asDLPoint primary: true) -> model;
+          add: ((boxConstraint + 1) asDLPoint primary: true) -> model ] ] ].
+  ^ ones
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Soduku solutions}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+testDLXonSudoku
+  | grid sols chain matrices |
+  grid := DLDataObject gridOn: DLDataObjectTest new emptySudokuIndicators.
+  chain := Generator
+    on: [ :g | 
+      AlgorithmX new
+        searchDLRootObject: (grid at: #root)
+        onSolutionDo: [ :sel | g yield: sel ] ].
+  sols := (chain next: 2) contents.
+  matrices := sols collect: [ :sol | "build the corresponding matrix" ].
+  self
+    assert: matrices first printString
+    equals:
+      '(9 8 7 6 5 4 3 2 1
+        6 5 4 3 2 1 9 8 7
+        3 2 1 9 8 7 6 5 4
+        8 9 6 7 4 5 2 1 3
+        7 4 5 2 1 3 8 9 6
+        2 1 3 8 9 6 7 4 5
+        5 7 9 4 6 8 1 3 2
+        4 6 8 1 3 2 5 7 9
+        1 3 2 5 7 9 4 6 8 )'.
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{$N$-Queens to Exact Cover reduction}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+NQueensIndicators: n
+  | ones |
+  ones := LinkedList new.
+  0 to: n - 1 do: [ :row | 
+    0 to: n - 1 do: [ :column | 
+      | rowIndex rowConstraint columnConstraint 
+        diagonalConstraint antiDiagonalConstraint model |
+      model := Dictionary new at: #x put: row; at: #y put: column; yourself.
+      rowIndex := n * row + column.
+      rowConstraint := rowIndex @ row.
+      columnConstraint := rowIndex @ (n + column).
+      diagonalConstraint := rowIndex @ (2 * n + (row + column)).
+      antiDiagonalConstraint := rowIndex
+            @ (2 * n + (2 * n) - 1 + (n - 1 - row + column)).
+      ones
+        add: ((rowConstraint + 1) asDLPoint primary: true) -> model;
+        add: ((columnConstraint + 1) asDLPoint primary: true) -> model;
+        add: ((diagonalConstraint + 1) asDLPoint primary: false) -> model;
+        add: ((antiDiagonalConstraint + 1) asDLPoint primary: false) -> model ] ].
+  ^ ones
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{$N$-Queens solutions}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+testDLXon_NQueens_sequence
+  | seq |
+  seq := (1 to: 11)
+    collect: [ :i | (self runDLXonNQueens: i next: nil) size ].
+  self
+    assert: seq
+    equals: {1 . 0 . 0 . 2 . 10 . 4 . 40 . 92 . 352 . 724 . 2680}
+\end{minted}
+the above sequence is also known as \url{https://oeis.org/A000170}.
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+testDLXon_8Queens
+  | matrices |
+  matrices := self runDLXonNQueens: 8 next: 1.
+  self
+    assert: matrices first printString
+    equals:
+      '(0 0 0 0 0 0 0 1
+        0 0 0 1 0 0 0 0
+        1 0 0 0 0 0 0 0
+        0 0 1 0 0 0 0 0
+        0 0 0 0 0 1 0 0
+        0 1 0 0 0 0 0 0
+        0 0 0 0 0 0 1 0
+        0 0 0 0 1 0 0 0 )'.
+\end{minted}
+
 \end{frame}
 
 
