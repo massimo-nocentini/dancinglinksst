@@ -2,8 +2,8 @@ Class {
 	#name : #DLDataObject,
 	#superclass : #Object,
 	#instVars : [
-		'ns',
-		'we',
+		'verticalLink',
+		'horizontalLink',
 		'column',
 		'point',
 		'model'
@@ -25,7 +25,7 @@ DLDataObject class >> gridOn: aCollection [
 	columns := Dictionary new.
 	rows := Dictionary new.
 	rootObj := DLRootObject new
-		addInDoubleLinkedList: headers direction: #we;
+		addInDoubleLinkedList: headers then: #horizontalLink:;
 		yourself.
 	allObjs at: #root put: rootObj.
 	aCollection
@@ -40,12 +40,11 @@ DLDataObject class >> gridOn: aCollection [
 						root: rootObj;
 						yourself.
 					aPoint primary
-						ifTrue: [ headerObj addInDoubleLinkedList: headers direction: #we ]
-						ifFalse: [ DoubleLinkedList circular: [:dll | 
-							headerObj addInDoubleLinkedList: dll direction: #we].
- ].
+						ifTrue: [ headerObj addInDoubleLinkedList: headers then: #horizontalLink: ]
+						ifFalse: [ DoubleLinkedList
+								circular: [ :dll | headerObj addInDoubleLinkedList: dll then: #horizontalLink: ] ].
 					newColumn := DoubleLinkedList new.
-					headerObj addInDoubleLinkedList: newColumn direction: #ns.
+					headerObj addInDoubleLinkedList: newColumn then: #verticalLink:.
 					allObjs at: aPoint y put: headerObj.
 					newColumn ].
 			columnObj := column first.
@@ -56,8 +55,8 @@ DLDataObject class >> gridOn: aCollection [
 				yourself.
 			row := rows at: aPoint x ifAbsentPut: [ DoubleLinkedList new ].
 			dataObj
-				addInDoubleLinkedList: column direction: #ns;
-				addInDoubleLinkedList: row direction: #we.
+				addInDoubleLinkedList: column then: #verticalLink:;
+				addInDoubleLinkedList: row then: #horizontalLink:.
 			columnObj updateSize: [ :s | s + 1 ].
 			allObjs at: aPoint put: dataObj ].
 	headers makeCircular.
@@ -67,10 +66,10 @@ DLDataObject class >> gridOn: aCollection [
 ]
 
 { #category : #accessing }
-DLDataObject >> addInDoubleLinkedList: aDoubleLinkedList direction: aSymbol [ 
-	|doubleLink|
+DLDataObject >> addInDoubleLinkedList: aDoubleLinkedList then: aSymbol [
+	| doubleLink |
 	doubleLink := aDoubleLinkedList add: self.
-	aSymbol = #ns ifTrue:[ ns := doubleLink ] ifFalse: [ we := doubleLink  ]
+	self perform: aSymbol with: doubleLink.
 ]
 
 { #category : #accessing }
@@ -104,7 +103,17 @@ DLDataObject >> columns [
 
 { #category : #accessing }
 DLDataObject >> down [
-	^ ns nextLink value
+	^ self verticalLink nextLink value
+]
+
+{ #category : #accessing }
+DLDataObject >> horizontalLink [
+	^ horizontalLink
+]
+
+{ #category : #accessing }
+DLDataObject >> horizontalLink: anObject [
+	horizontalLink := anObject
 ]
 
 { #category : #querying }
@@ -115,7 +124,7 @@ DLDataObject >> isFixPointOf: aSelector [
 
 { #category : #accessing }
 DLDataObject >> left [
-	^ we previousLink value
+	^ self horizontalLink previousLink value
 ]
 
 { #category : #accessing }
@@ -126,11 +135,6 @@ DLDataObject >> model [
 { #category : #accessing }
 DLDataObject >> model: anObject [
 	model := anObject
-]
-
-{ #category : #accessing }
-DLDataObject >> nsLink [
-	^ ns
 ]
 
 { #category : #accessing }
@@ -145,7 +149,7 @@ DLDataObject >> point: anObject [
 
 { #category : #accessing }
 DLDataObject >> right [
-	^ we nextLink value
+	^ self horizontalLink nextLink value
 ]
 
 { #category : #iterating }
@@ -178,5 +182,15 @@ DLDataObject >> untilFixPointOf: aSelector foldr: aBlockClosure init: v [
 
 { #category : #accessing }
 DLDataObject >> up [
-	^ ns previousLink value
+	^ self verticalLink previousLink value
+]
+
+{ #category : #accessing }
+DLDataObject >> verticalLink [
+	^ verticalLink 
+]
+
+{ #category : #accessing }
+DLDataObject >> verticalLink: anObject [
+	verticalLink := anObject
 ]

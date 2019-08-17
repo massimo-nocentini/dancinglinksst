@@ -17,7 +17,7 @@ DLColumnObject >> cover [
 { #category : #modifying }
 DLColumnObject >> coverWith: aBlock [
 	| n |
-	we remove.
+	self horizontalLink remove.
 	n := 1.	"One update happened in the line above"
 	self
 		untilFixPointOf: [ :co | co down ]
@@ -25,10 +25,10 @@ DLColumnObject >> coverWith: aBlock [
 			i
 				untilFixPointOf: [ :do | do right ]
 				do: [ :j | 
-					j nsLink remove.
+					j verticalLink remove.
 					n := n + 1.
 					j column updateSize: [ :s | s - 1 ] ] ].
-			^ aBlock value: n
+	^ aBlock value: n
 ]
 
 { #category : #accessing }
@@ -66,10 +66,10 @@ DLColumnObject >> uncoverWith: aBlock [
 			i
 				untilFixPointOf: [ :do | do left ]
 				do: [ :j | 
-					j nsLink restore.
+					j verticalLink restore.
 					n := n + 1.
 					j column updateSize: [ :s | s + 1 ] ] ].
-	we restore.
+	self horizontalLink restore.
 	^ aBlock value: n + 1
 ]
 
