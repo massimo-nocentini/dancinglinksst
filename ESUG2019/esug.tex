@@ -53,7 +53,7 @@ Programmer (automated reasoning, logics and symbolic comp)
 https://github.com/massimo-nocentini/dancinglinksst
 \end{Verbatim}
 \vfill
-In Donald's words (\url{https://arxiv.org/abs/cs/0011047}):
+In Donald's words\footnote{\url{https://arxiv.org/abs/cs/0011047}}:
 \emph{
 Suppose $x$ points to an element of a doubly linked list;
 let $L[x]$ and $R[x]$ point to the predecessor and successor
@@ -72,57 +72,52 @@ will put $x$ back again, with no refs to the whole list at all.
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Main idea}
-In math a relation $P$ is usually characterized by
-\begin{displaymath}
-\forall a,b,c.\,P(a,b,c) \leftrightarrow a + b = c \quad\text{entails}\quad P(1,2,3)
-\end{displaymath}
-can be expressed using either the \textit{imperative style}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
-a := 1.
-b := 2.
-c := a + b.
-Object assert: [ c = 3 ].
-\end{minted}
-or the \textit{functional style}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
-Object assert: [
-    ([ :a :b | a + b ] value: 1 value: 2) = 3 ]
-\end{minted}
-or, finally, the \textit{declarative style}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
-Object assert: [
-    [ :a :b :c | a + b = c ] value: 1 value: 2 value: 3 ]
-\end{minted}
+\frametitle{Main ideas}
+
+\begin{itemize}
+  \item Operation $(2)$ arises in \textit{backtrack programs}, which enumerate all 
+  solutions to a given set of constraints and it was introduced in 1979 by Hitotumatu and Noshita.
+  \item The beauty of $(2)$ is that operation $(1)$ can be undone by knowing only the value of $x$.
+  \item We can apply $(1)$ and $(2)$ repeatedly in complex data structures that involve large 
+  numbers of interacting doubly linked lists.
+  \item This process causes the pointer variables inside the global data structure to execute an 
+  exquisitely choreographed dance; hence I like to call $(1)$ and $(2)$ the \textit{technique of dancing links}.
+  \item Minato et al. \footnote{\url{https://aaai.org/ocs/index.php/AAAI/AAAI17/paper/view/14907}} 
+  constructs a Zero-suppressed BDD (ZDD) that represents the set of sols and it enables the efficient 
+  use of memo cache to speed up the search.
+\end{itemize}
 
 \end{frame}
 
 
 \begin{frame}[fragile]
-\frametitle{Chain subclass: \#Bottom}
+\frametitle{\texttt{DoubleLink}s and circular \texttt{DoubleLinkedList}s}
+\texttt{DoubleLink} objects respond to messages
 \begin{minted}[fontsize=\footnotesize]{smalltalk}
-DoubleLink>>remove
+remove
   nextLink ifNotNil: [ :next | next previousLink: previousLink ].
   previousLink ifNotNil: [ :previous | previous nextLink: nextLink ]
 \end{minted}
-\vfill
+and
 \begin{minted}[fontsize=\footnotesize]{smalltalk}
-DoubleLink>>restore
+restore
   nextLink ifNotNil: [ :next | next previousLink: self ].
   previousLink ifNotNil: [ :previous | previous nextLink: self ]
 \end{minted}
-\vfill
+that implement operations $(1)$ and $(2)$, respectively;
+moreover, we extend \texttt{DoubleLinkedList} objects with the message
 \begin{minted}[fontsize=\footnotesize]{smalltalk}
-DoubleLinkedList>>makeCircular
+makeCircular
   head
     ifNotNil: [ 
       head previousLink: tail.
       tail nextLink: head ]
 \end{minted}
+to introduce circular lists, doubly connected.
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Chain subclass: \#Knot}
+\frametitle{AlgorithmX instance side}
 \begin{minted}[fontsize=\footnotesize]{smalltalk}
 searchDepth: k forDLRootObject: h partialSelection: cont
   ^ (h isFixPointOf: [ :ro | ro right ])
@@ -140,6 +135,7 @@ searchDepth: k forDLRootObject: h partialSelection: cont
 \end{frame}
 
 \begin{frame}[fragile]
+\frametitle{AlgorithmX instance side}
 \begin{minted}[fontsize=\footnotesize]{smalltalk}
 searchDepth: k forDLColumnObject: c partialSelection: sel
   ^ self
@@ -165,6 +161,7 @@ searchDepth: k forDLColumnObject: c partialSelection: sel
 \end{frame}
 
 \begin{frame}[fragile]
+\frametitle{AlgorithmX instance side}
 \begin{minted}[fontsize=\footnotesize]{smalltalk}
 searchDepth: k forDLDataObject: r partialSelection: cont
   ^ self
@@ -186,6 +183,7 @@ searchDepth: k forDLDataObject: r partialSelection: cont
 \end{frame}
   
 \begin{frame}[fragile]
+\frametitle{AlgorithmX instance side}
 \begin{minted}[fontsize=\footnotesize]{smalltalk}
 searchDLRootObject: h onSolutionDo: aBlock
   ^ self
@@ -195,6 +193,7 @@ searchDLRootObject: h onSolutionDo: aBlock
         aBlock value: (LinkedList new add: selLink; asSet) ]
 \end{minted}
 \vfill
+Knuth advices to use the heuristic (provided by \texttt{DLRootObject} objs)
 \begin{minted}[fontsize=\footnotesize]{smalltalk}
 chooseColumn
   | c s |
@@ -207,14 +206,17 @@ chooseColumn
           s := j size ] ].
   ^ c
 \end{minted}
+that \textit{minimizes} the search tree's branching factor.
 \end{frame}
 
 \begin{frame}[fragile]
+\frametitle{DLColumnObject instance side}
+The operation of covering column $c$ is more interesting: 
+It removes $c$ from the header list and removes all rows in $c$'s own list 
+from the other column lists they are in.
 \begin{minted}[fontsize=\footnotesize]{smalltalk}
-coverWith: aBlock
-  | n |
+cover
   we remove.
-  n := 1. "One update happened in the line above"
   self
     untilFixPointOf: [ :co | co down ]
     do: [ :i | 
@@ -222,17 +224,17 @@ coverWith: aBlock
         untilFixPointOf: [ :do | do right ]
         do: [ :j | 
           j nsLink remove.
-          n := n + 1.
-          j column updateSize: [ :s | s - 1 ] ] ].
-  ^ aBlock value: n
+          j column updateSize: [ :s | s - 1 ] ] ]
 \end{minted}
+Operation $(1)$ is used here to remove objects in both the horizontal and vertical directions.
 \end{frame}
 
 \begin{frame}[fragile]
+\frametitle{DLColumnObject instance side}
+Finally, we get to the operation of \textit{uncovering} a given column $c$. 
+Here is where the links do their dance:
 \begin{minted}[fontsize=\footnotesize]{smalltalk}
-uncoverWith: aBlock
-  | n |
-  n := 0.
+uncover
   self
     untilFixPointOf: [ :co | co up ]
     do: [ :i | 
@@ -240,11 +242,90 @@ uncoverWith: aBlock
         untilFixPointOf: [ :do | do left ]
         do: [ :j | 
           j nsLink restore.
-          n := n + 1.
           j column updateSize: [ :s | s + 1 ] ] ].
-  we restore.
-  ^ aBlock value: n + 1
+  we restore
 \end{minted}
+Notice that uncovering takes place in precisely the reverse order of the 
+covering operation, using the fact that $(2)$ undoes $(1)$.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{DLDataObject class side}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+gridOn: aCollection
+  | rootObj columns rows headers allObjs |
+  aCollection
+    sort: [ :vAssoc :wAssoc | 
+      | v w |
+      v := vAssoc key.
+      w := wAssoc key.
+      v y <= w y and: [ v x <= w x ] ].
+  allObjs := Dictionary new.
+  headers := DoubleLinkedList new.
+  columns := Dictionary new.
+  rows := Dictionary new.
+  rootObj := DLRootObject new
+    addInDoubleLinkedList: headers direction: #we;
+    yourself.
+  allObjs at: #root put: rootObj.
+  "to be contd..."
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{DLDataObject class side}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+gridOn: aCollection
+  "...contd..."
+  aCollection
+    do: [ :anAssociation | 
+      | aPoint columnObj dataObj column row |
+      aPoint := anAssociation key.
+      column := columns
+        at: aPoint y
+        ifAbsentPut: [ | headerObj newColumn |
+          headerObj := DLColumnObject new size: 0; root: rootObj; yourself.
+          aPoint primary
+            ifTrue: [ headerObj addInDoubleLinkedList: headers 
+                                direction: #we ]
+            ifFalse: [ DoubleLinkedList
+                circular: [ :dll | headerObj addInDoubleLinkedList: dll 
+                                             direction: #we ] ].
+          newColumn := DoubleLinkedList new.
+          headerObj addInDoubleLinkedList: newColumn direction: #ns.
+          allObjs at: aPoint y put: headerObj.
+          newColumn ].
+  "..to be contd further..."
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{DLDataObject class side}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+gridOn: aCollection
+  "...contd"
+      columnObj := column first.
+      dataObj := DLDataObject new
+        column: columnObj;
+        point: aPoint;
+        model: anAssociation value;
+        yourself.
+      row := rows at: aPoint x ifAbsentPut: [ DoubleLinkedList new ].
+      dataObj
+        addInDoubleLinkedList: column direction: #ns;
+        addInDoubleLinkedList: row direction: #we.
+      columnObj updateSize: [ :s | s + 1 ].
+      allObjs at: aPoint put: dataObj ].
+  headers makeCircular.
+  columns valuesDo: #makeCircular.
+  rows valuesDo: #makeCircular.
+  ^ allObjs
+\end{minted}
+\end{frame}
+
+
+\begin{frame}{ }
+\Huge Thanks!
 \end{frame}
 
 \begin{frame}[fragile]
@@ -273,80 +354,6 @@ uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y
 \end{minted}
 \end{frame}
 
-\begin{frame}[fragile]
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
-gridOn: aCollection
-  "to be contd ..."
-  | rootObj columns rows headers allObjs |
-  aCollection
-    sort: [ :vAssoc :wAssoc | 
-      | v w |
-      v := vAssoc key.
-      w := wAssoc key.
-      v y <= w y and: [ v x <= w x ] ].
-  allObjs := Dictionary new.
-  headers := DoubleLinkedList new.
-  columns := Dictionary new.
-  rows := Dictionary new.
-  rootObj := DLRootObject new
-    addInDoubleLinkedList: headers direction: #we;
-    yourself.
-  allObjs at: #root put: rootObj.
-\end{minted}
-\end{frame}
-
-\begin{frame}[fragile]
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
-gridOn: aCollection
-  "...contd..."
-  aCollection
-    do: [ :anAssociation | 
-      | aPoint columnObj dataObj column row |
-      aPoint := anAssociation key.
-      column := columns
-        at: aPoint y
-        ifAbsentPut: [ | headerObj newColumn |
-          headerObj := DLColumnObject new size: 0; root: rootObj; yourself.
-          aPoint primary
-            ifTrue: [ headerObj addInDoubleLinkedList: headers 
-                                direction: #we ]
-            ifFalse: [ DoubleLinkedList
-                circular: [ :dll | headerObj addInDoubleLinkedList: dll 
-                                             direction: #we ] ].
-          newColumn := DoubleLinkedList new.
-          headerObj addInDoubleLinkedList: newColumn direction: #ns.
-          allObjs at: aPoint y put: headerObj.
-          newColumn ].
-\end{minted}
-\end{frame}
-
-\begin{frame}[fragile]
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
-gridOn: aCollection
-  "...contd"
-      columnObj := column first.
-      dataObj := DLDataObject new
-        column: columnObj;
-        point: aPoint;
-        model: anAssociation value;
-        yourself.
-      row := rows at: aPoint x ifAbsentPut: [ DoubleLinkedList new ].
-      dataObj
-        addInDoubleLinkedList: column direction: #ns;
-        addInDoubleLinkedList: row direction: #we.
-      columnObj updateSize: [ :s | s + 1 ].
-      allObjs at: aPoint put: dataObj ].
-  headers makeCircular.
-  columns valuesDo: #makeCircular.
-  rows valuesDo: #makeCircular.
-  ^ allObjs
-\end{minted}
-\end{frame}
-
-
-\begin{frame}{ }
-\Huge Thanks!
-\end{frame}
 
 \end{document}
 
