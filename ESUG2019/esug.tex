@@ -1,5 +1,6 @@
+%!TEX root = /Users/mn/Developer/working-copies/smalltalks/dancinglinksst/ESUG2019/esug.tex
 
-\documentclass{beamer}
+\documentclass[10pt]{beamer}
 
 \usepackage{euler}
 \usepackage[utf8]{inputenc}
@@ -103,12 +104,9 @@ Given a matrix of $0$s and $1$s, does it have a set of rows containing exactly o
          0 & 0 & 1 & 0 & 1 & 0 \\
        \end{array}\right)
       \end{displaymath}
-      has solutions $
-        \left\lbrace
-          \left\lbrace 1,3\right\rbrace,
-          \left\lbrace 2,5,3\right\rbrace
-        \right\rbrace
-        $.
+      is solved by selecting rows either $
+          \left\lbrace \boldsymbol{1}, \boldsymbol{3}\right\rbrace$ or $
+          \left\lbrace \boldsymbol{2},\boldsymbol{5},\boldsymbol{3}\right\rbrace$.
      \end{column}
      \begin{column}{.5\linewidth}
        \begin{tabular}{cc}
@@ -125,32 +123,32 @@ when each row contains exactly three $1$s.
 \begin{frame}[fragile]
 \frametitle{\texttt{DoubleLink}s and circular \texttt{DoubleLinkedList}s}
 \texttt{DoubleLink} objects respond to messages
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 remove
   nextLink ifNotNil: [ :next | next previousLink: previousLink ].
   previousLink ifNotNil: [ :previous | previous nextLink: nextLink ]
 \end{minted}
 and
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 restore
   nextLink ifNotNil: [ :next | next previousLink: self ].
   previousLink ifNotNil: [ :previous | previous nextLink: self ]
 \end{minted}
 that implement operations $(1)$ and $(2)$, respectively;
 moreover, we extend \texttt{DoubleLinkedList} objects with the message
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 makeCircular
   head
     ifNotNil: [ 
       head previousLink: tail.
       tail nextLink: head ]
 \end{minted}
-to introduce circular lists, doubly connected.
+to introduce circular, doubly connected, lists.
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{AlgorithmX instance side}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 searchDepth: k forDLRootObject: h partialSelection: cont
   ^ (h isFixPointOf: [ :ro | ro right ])
       ifTrue: [ self yieldNode: top onBlock: cont ]
@@ -168,7 +166,7 @@ searchDepth: k forDLRootObject: h partialSelection: cont
 
 \begin{frame}[fragile]
 \frametitle{AlgorithmX instance side}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 searchDepth: k forDLColumnObject: c partialSelection: sel
   ^ self
       onEnter: [ c cover ]
@@ -194,7 +192,7 @@ searchDepth: k forDLColumnObject: c partialSelection: sel
 
 \begin{frame}[fragile]
 \frametitle{AlgorithmX instance side}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 searchDepth: k forDLDataObject: r partialSelection: cont
   ^ self
       onEnter: [ r untilFixPointOf: [ :ro | ro right ] 
@@ -213,10 +211,12 @@ searchDepth: k forDLDataObject: r partialSelection: cont
                   do: [ :j | j column uncover ] ]
 \end{minted}
 \end{frame}
-  
+
 \begin{frame}[fragile]
 \frametitle{AlgorithmX instance side}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+The entry point is the message
+\vfill
+\begin{minted}[fontsize=\small]{smalltalk}
 searchDLRootObject: h onSolutionDo: aBlock
   ^ self
       searchDepth: 0
@@ -226,7 +226,7 @@ searchDLRootObject: h onSolutionDo: aBlock
 \end{minted}
 \vfill
 Knuth advices to use the heuristic (provided by \texttt{DLRootObject} objs)
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 chooseColumn
   | c s |
   s := Float infinity.
@@ -246,7 +246,8 @@ that \textit{minimizes} the search tree's branching factor.
 The operation of covering column $c$ is more interesting: 
 It removes $c$ from the header list and removes all rows in $c$'s own list 
 from the other column lists they are in.
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\vfill
+\begin{minted}[fontsize=\small]{smalltalk}
 cover
   we remove.
   self
@@ -258,6 +259,7 @@ cover
           j nsLink remove.
           j column updateSize: [ :s | s - 1 ] ] ]
 \end{minted}
+\vfill
 Operation $(1)$ is used here to remove objects in both the horizontal and vertical directions.
 \end{frame}
 
@@ -265,7 +267,8 @@ Operation $(1)$ is used here to remove objects in both the horizontal and vertic
 \frametitle{DLColumnObject instance side}
 Finally, we get to the operation of \textit{uncovering} a given column $c$. 
 Here is where the links do their dance:
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\vfill
+\begin{minted}[fontsize=\small]{smalltalk}
 uncover
   self
     untilFixPointOf: [ :co | co up ]
@@ -277,13 +280,14 @@ uncover
           j column updateSize: [ :s | s + 1 ] ] ].
   we restore
 \end{minted}
+\vfill
 Notice that uncovering takes place in precisely the reverse order of the 
 covering operation, using the fact that $(2)$ undoes $(1)$.
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{DLDataObject class side}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 gridOn: aCollection
   | rootObj columns rows headers allObjs |
   aCollection
@@ -306,7 +310,7 @@ gridOn: aCollection
 
 \begin{frame}[fragile]
 \frametitle{DLDataObject class side}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 gridOn: aCollection
   "...contd..."
   aCollection
@@ -333,7 +337,7 @@ gridOn: aCollection
 
 \begin{frame}[fragile]
 \frametitle{DLDataObject class side}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 gridOn: aCollection
   "...contd"
       columnObj := column first.
@@ -357,7 +361,7 @@ gridOn: aCollection
 
 \begin{frame}[fragile]
 \frametitle{Sudoku to Exact Cover reduction}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 emptySudokuIndicators
   | ones start end |
   start := 0. end := 8. ones := LinkedList new.
@@ -384,7 +388,7 @@ emptySudokuIndicators
 
 \begin{frame}[fragile]
 \frametitle{Soduku solutions}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 testDLXonSudoku
   | grid sols chain matrices |
   grid := DLDataObject gridOn: DLDataObjectTest new emptySudokuIndicators.
@@ -412,7 +416,7 @@ testDLXonSudoku
 
 \begin{frame}[fragile]
 \frametitle{$N$-Queens to Exact Cover reduction}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 NQueensIndicators: n
   | ones |
   ones := LinkedList new.
@@ -438,7 +442,7 @@ NQueensIndicators: n
 
 \begin{frame}[fragile]
 \frametitle{$N$-Queens solutions}
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 testDLXon_NQueens_sequence
   | seq |
   seq := (1 to: 11)
@@ -448,7 +452,7 @@ testDLXon_NQueens_sequence
     equals: {1 . 0 . 0 . 2 . 10 . 4 . 40 . 92 . 352 . 724 . 2680}
 \end{minted}
 the above sequence is also known as \url{https://oeis.org/A000170}.
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 testDLXon_8Queens
   | matrices |
   matrices := self runDLXonNQueens: 8 next: 1.
@@ -467,13 +471,26 @@ testDLXon_8Queens
 
 \end{frame}
 
+\begin{frame}[fragile]
+\frametitle{Final remarks}
+\begin{itemize}
+  \item :) Knuth is actively working on this (a new fascicle is coming https://cs.stanford.edu/~knuth/fasc5c.ps.gz)
+  \item :( Constraints are verbose and rigid to express (currently we use \texttt{Point} objs), 
+        looking for a DSL that makes coding constraints easier
+  \item TODO
+    \begin{itemize}
+      \item Group column objects using different colours to express even more constraints
+      \item Write reductions to Exact Cover (from $3$SAT, Knapsack, TSP, ...)
+    \end{itemize}
+\end{itemize}
+\end{frame}
 
 \begin{frame}{ }
 \Huge Thanks!
 \end{frame}
 
 \begin{frame}[fragile]
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 yieldNode: tree onBlock: cont
   tree sets
     collect: [ :each | (each collect: #model) as: LinkedList ]
@@ -484,7 +501,7 @@ yieldNode: tree onBlock: cont
   ^ tree
 \end{minted}
 \vfill
-\begin{minted}[fontsize=\footnotesize]{smalltalk}
+\begin{minted}[fontsize=\small]{smalltalk}
 uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y
   | key |
   key := Array with: r with: x with: y.
