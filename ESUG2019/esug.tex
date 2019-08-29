@@ -2,7 +2,7 @@
 
 \documentclass[10pt]{beamer}
 
-\usepackage{euler}
+
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
@@ -12,6 +12,7 @@
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
+\usepackage{euler}
 
 \usefonttheme[onlymath]{serif}
 
@@ -21,24 +22,26 @@
 
 %Information to be included in the title page:
 \title{Dancing Links\\\small{an educational pearl}}
-\author{Massimo Nocentini}
-\institute{University of Florence, Italy}
-\date{ESUG2019 }
+\author{Massimo Nocentini, PhD.\\\footnotesize{\url{massimo.nocentini@gmail.com}}}
+\institute{ESUG2019 -- \today.}
+\date{\vspace{0.5cm}\includegraphics{SchmidtLogo.jpg}}
 
 \begin{document}
 
 \frame{\titlepage}
+
+\logo{\includegraphics[height=0.5cm,width=3cm]{SchmidtLogo.jpg}\vspace{240pt}}
 
 \begin{frame}[fragile]
 \frametitle{}
 \begin{minted}[fontsize=\small]{smalltalk}
 outline
     ^ LinkedList new
-        add: 'me and motivations';
-        add: 'exact cover problem';
+        add: 'me and the core idea';
         add: 'DoubleLink objs';
-        add: 'Dancing, Dancing...';
-        add: 'and even more Dancing!';
+        add: 'exact cover problem';
+        add: 'AlgorithmX';
+        add: 'covering and uncovering columns';
         add: 'N-Queens and Sudoku problems';
         yourself
 \end{minted}
@@ -73,16 +76,20 @@ will put $x$ back again, with no refs to the whole list at all.
 \end{frame}
 
 \begin{frame}[fragile]
+\frametitle{Space for sketching}
+\end{frame}
+
+\begin{frame}[fragile]
 \frametitle{Main ideas}
 
 \begin{itemize}
-  \item Operation $(2)$ arises in \textit{backtrack programs}, which enumerate all 
+  \item Operation $(2)$ arises in \textbf{backtrack programs}, which enumerate all 
   solutions to a given set of constraints and it was introduced in 1979 by Hitotumatu and Noshita.
   \item The beauty of $(2)$ is that operation $(1)$ can be undone by knowing only the value of $x$.
   \item We can apply $(1)$ and $(2)$ repeatedly in complex data structures that involve large 
   numbers of interacting doubly linked lists.
-  \item This process causes the pointer variables inside the global data structure to execute an 
-  exquisitely choreographed dance; hence I like to call $(1)$ and $(2)$ the \textit{technique of dancing links}.
+  \item Knuth: ``\emph{This process causes the pointer variables inside the global data structure to execute an 
+    exquisitely choreographed dance; hence I like to call $(1)$ and $(2)$ the \textbf{technique of dancing links}.}''
   \item Minato et al. \footnote{\url{https://aaai.org/ocs/index.php/AAAI/AAAI17/paper/view/14907}} 
   constructs a Zero-suppressed BDD (ZDD) that represents the set of sols and it enables the efficient 
   use of memo cache to speed up the search.
@@ -90,38 +97,7 @@ will put $x$ back again, with no refs to the whole list at all.
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Exact Cover $\in \mathcal{NP}$}
-Given a matrix of $0$s and $1$s, does it have a set of rows containing exactly one $1$ in each column?
-\begin{columns}
-     \begin{column}{.5\linewidth}
-      The problem with matrix
-      \begin{displaymath}
-       \left(\begin{array}{cccccc}
-         1 & 1 & 1 & 0 & 1 & 0 \\
-         1 & 1 & 0 & 0 & 0 & 0 \\
-         0 & 0 & 0 & 1 & 0 & 1 \\
-         0 & 0 & 1 & 1 & 0 & 1 \\
-         0 & 0 & 1 & 0 & 1 & 0 \\
-       \end{array}\right)
-      \end{displaymath}
-      is solved by selecting rows either $
-          \left\lbrace \boldsymbol{1}, \boldsymbol{3}\right\rbrace$ or $
-          \left\lbrace \boldsymbol{2},\boldsymbol{5},\boldsymbol{3}\right\rbrace$.
-     \end{column}
-     \begin{column}{.5\linewidth}
-       \begin{tabular}{cc}
-          \includegraphics[width=3cm,height=5cm]{ZDD.png}
-       \end{tabular}
-     \end{column}
-   \end{columns}
-We can think of the columns as elements of a universe, and the rows as subsets of the universe; 
-then the problem is to cover the universe with disjoint subsets, $\mathcal{NP}$-complete even 
-when each row contains exactly three $1$s.
-\end{frame}
-
-
-\begin{frame}[fragile]
-\frametitle{\texttt{DoubleLink}s and circular \texttt{DoubleLinkedList}s}
+\frametitle{\texttt{DoubleLink}s and \texttt{DoubleLinkedList}s}
 \texttt{DoubleLink} objects respond to messages
 \begin{minted}[fontsize=\small]{smalltalk}
 remove
@@ -147,6 +123,47 @@ to introduce circular, doubly connected, lists.
 \end{frame}
 
 \begin{frame}[fragile]
+\frametitle{Exact Cover $\in \mathcal{NP}$}
+\emph{Given a matrix of $0$s and $1$s, does it have a set of rows containing \textbf{exactly one} symbol $1$ in each column?}
+\begin{columns}
+     \begin{column}{.7\linewidth}
+      The problem with matrix
+      \begin{displaymath}
+        \left(\begin{array}{c}
+          r_{1} \\ r_{2} \\ r_{3} \\ r_{4} \\ r_{5}
+        \end{array}\right)^{T}
+        \left(\begin{array}{cccccc}
+          1 & 1 & 1 & 0 & 1 & 0 \\
+          1 & 1 & 0 & 0 & 0 & 0 \\
+          0 & 0 & 0 & 1 & 0 & 1 \\
+          0 & 0 & 1 & 1 & 0 & 1 \\
+          0 & 0 & 1 & 0 & 1 & 0 \\
+        \end{array}\right) = 
+        \left(\begin{array}{c}
+          1 \\ 1 \\ 1 \\ 1 \\ 1 \\ 1
+        \end{array}\right)^{T}
+      \end{displaymath}
+      is solved by two sets of rows, namely 
+      $\left\lbrace r_{1}=1, r_{3}=1\right\rbrace$ and
+      $\left\lbrace r_{2}=1, r_{5}=1, r_{3}=1\right\rbrace$.
+     \end{column}
+     \begin{column}{.3\linewidth}
+       \begin{tabular}{cc}
+          \includegraphics[width=3cm,height=5cm]{ZDD.png}
+       \end{tabular}
+     \end{column}
+   \end{columns}
+We can think of the columns as elements of a universe, and the rows as subsets of the universe; 
+then the problem is to cover the universe with disjoint subsets, $\mathcal{NP}$-complete even 
+when each row contains exactly three $1$s.
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Space for sketching}
+\end{frame}
+
+\begin{frame}[fragile]
 \frametitle{AlgorithmX instance side}
 \begin{minted}[fontsize=\small]{smalltalk}
 searchDepth: k forDLRootObject: h partialSelection: cont
@@ -159,8 +176,8 @@ searchDepth: k forDLRootObject: h partialSelection: cont
           ifAbsentPut: [ 
             self
               searchDepth: k
-              forDLColumnObject: h chooseColumn
-              partialSelection: cont ] ]
+                forDLColumnObject: h chooseColumn
+                partialSelection: cont ] ]
 \end{minted}
 \end{frame}
 
@@ -176,15 +193,15 @@ searchDepth: k forDLColumnObject: c partialSelection: sel
           foldr: [ :r :x | 
             | y |
             y := self searchDepth: k 
-                      forDLDataObject: r 
-                      partialSelection: sel.
+                        forDLDataObject: r 
+                        partialSelection: sel.
             y isZDDBottom
                 ifTrue: [ x ]
                 ifFalse: [ 
                   self
                     uniqueNodeWithDLDataObject: r
-                    withLowerNode: x
-                    withHigherNode: y ] ]
+                      withLowerNode: x
+                      withHigherNode: y ] ]
           init: bottom ]
       onExit: [ c uncover ]
 \end{minted}
@@ -199,14 +216,14 @@ searchDepth: k forDLDataObject: r partialSelection: cont
                    do: [ :j | j column cover ] ]
       do: [ self
               searchDepth: k + 1
-              forDLRootObject: r column root
-              partialSelection: [ :sel | 
-                cont
-                  value:
-                    (ValueLink new
-                      value: r model;
-                      nextLink: sel;
-                      yourself) ] ]
+                forDLRootObject: r column root
+                partialSelection: [ :sel | 
+                  cont
+                    value:
+                      (ValueLink new
+                        value: r model;
+                        nextLink: sel;
+                        yourself) ] ]
       onExit: [ r untilFixPointOf: [ :ro | ro left ] 
                   do: [ :j | j column uncover ] ]
 \end{minted}
@@ -228,24 +245,24 @@ searchDLRootObject: h onSolutionDo: aBlock
 Knuth advices to use the heuristic (provided by \texttt{DLRootObject} objs)
 \begin{minted}[fontsize=\small]{smalltalk}
 chooseColumn
-  | c s |
-  s := Float infinity.
-  self
-    untilFixPointOf: [ :ro | ro right ]
-    do: [ :j | 
-      j size < s
-        ifTrue: [ c := j.
-          s := j size ] ].
-  ^ c
+  ^ self chooseColumnWithWeight: #size withOpt: #<
+\end{minted}
+\begin{minted}[fontsize=\footnotesize]{smalltalk}
+chooseColumnWithWeight: weightBlock withOpt: optBlock
+  ^ self
+      untilFixPointOf: [ :ro | ro left ]
+      foldr: [ :j :r | 
+        (optBlock value: (weightBlock value: j) value: (weightBlock value: r))
+          ifTrue: [ j ]
+          ifFalse: [ r ] ]
+      init: self right
 \end{minted}
 that \textit{minimizes} the search tree's branching factor.
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{DLColumnObject instance side}
-The operation of covering column $c$ is more interesting: 
-It removes $c$ from the header list and removes all rows in $c$'s own list 
-from the other column lists they are in.
+The operation of \emph{covering} column $c$ removes $c$ from the header list and removes all rows in $c$'s own list from the other column lists they are in.
 \vfill
 \begin{minted}[fontsize=\small]{smalltalk}
 cover
@@ -284,6 +301,170 @@ uncover
 Notice that uncovering takes place in precisely the reverse order of the 
 covering operation, using the fact that $(2)$ undoes $(1)$.
 \end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Sudoku to Exact Cover reduction}
+\begin{minted}[fontsize=\small]{smalltalk}
+emptySudokuIndicators
+  | ones start end |
+  start := 0. end := 8. ones := LinkedList new.
+  start to: end do: [ :row | 
+    start to: end do: [ :column | 
+      start to: end do: [ :value | 
+        | rowIndex cellConstraint rowConstraint 
+          columnConstraint boxConstraint model |
+        model := {(#x -> row). (#y -> column). (#v -> value)} asDictionary.
+        rowIndex := 81 * row + (9 * column) + value.
+        cellConstraint := rowIndex @ ((end + 1) * row + column).
+        rowConstraint := rowIndex @ (9 * row + value + 81).
+        columnConstraint := rowIndex @ (9 * column + value + (81 * 2)).
+        boxConstraint := rowIndex
+            @ (27 * (row // 3) + (9 * (column // 3)) + value + (81 * 3)).
+        ones
+          add: ((cellConstraint + 1) asDLPoint primary: true) -> model;
+          add: ((rowConstraint + 1) asDLPoint primary: true) -> model;
+          add: ((columnConstraint + 1) asDLPoint primary: true) -> model;
+          add: ((boxConstraint + 1) asDLPoint primary: true) -> model ] ] ].
+  ^ ones
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Soduku solutions}
+\begin{minted}[fontsize=\small]{smalltalk}
+testDLXonSudoku
+  | grid sols chain matrices |
+  grid := DLDataObject gridOn: DLDataObjectTest new emptySudokuIndicators.
+  chain := Generator
+    on: [ :g | AlgorithmX new
+                searchDLRootObject: (grid at: #root)
+                onSolutionDo: [ :sel | g yield: sel ] ].
+  sols := (chain next: 2) contents.
+  matrices := sols collect: [ :sol | "build the corresponding matrix" ].
+  self
+    assert: matrices first printString
+    equals:
+      '(9 8 7 6 5 4 3 2 1
+        6 5 4 3 2 1 9 8 7
+        3 2 1 9 8 7 6 5 4
+        8 9 6 7 4 5 2 1 3
+        7 4 5 2 1 3 8 9 6
+        2 1 3 8 9 6 7 4 5
+        5 7 9 4 6 8 1 3 2
+        4 6 8 1 3 2 5 7 9
+        1 3 2 5 7 9 4 6 8 )'.
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{$N$-Queens to Exact Cover reduction}
+\begin{minted}[fontsize=\small]{smalltalk}
+NQueensIndicators: n
+  | ones |
+  ones := LinkedList new.
+  0 to: n - 1 do: [ :row | 
+    0 to: n - 1 do: [ :column | 
+      | rowIndex rowConstraint columnConstraint 
+        diagonalConstraint antiDiagonalConstraint model |
+      model := Dictionary new at: #x put: row; at: #y put: column; yourself.
+      rowIndex := n * row + column.
+      rowConstraint := rowIndex @ row.
+      columnConstraint := rowIndex @ (n + column).
+      diagonalConstraint := rowIndex @ (2 * n + (row + column)).
+      antiDiagonalConstraint := rowIndex
+            @ (2 * n + (2 * n) - 1 + (n - 1 - row + column)).
+      ones
+        add: ((rowConstraint + 1) asDLPoint primary: true) -> model;
+        add: ((columnConstraint + 1) asDLPoint primary: true) -> model;
+        add: ((diagonalConstraint + 1) asDLPoint primary: false) -> model;
+        add: ((antiDiagonalConstraint + 1) asDLPoint primary: false) -> model ] ].
+  ^ ones
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{$N$-Queens solutions}
+\begin{minted}[fontsize=\small]{smalltalk}
+testDLXon_NQueens_sequence
+  | seq elapsedTime |
+  elapsedTime := [ seq := (1 to: 10)
+    collect: [ :i | (self runDLXonNQueens: i next: nil) size ] ] timeToRun.
+  self assert: elapsedTime < 2 asSeconds.
+  self assert: seq "also known as https://oeis.org/A000170"
+        equals: {1 . 0 . 0 . 2 . 10 . 4 . 40 . 92 . 352 . 724}
+\end{minted}
+\begin{minted}[fontsize=\small]{smalltalk}
+testDLXon_8Queens
+  | matrices |
+  matrices := self runDLXonNQueens: 8 next: 1.
+  self
+    assert: matrices first printString
+    equals:
+      '(0 0 0 0 0 0 0 1
+        0 0 0 1 0 0 0 0
+        1 0 0 0 0 0 0 0
+        0 0 1 0 0 0 0 0
+        0 0 0 0 0 1 0 0
+        0 1 0 0 0 0 0 0
+        0 0 0 0 0 0 1 0
+        0 0 0 0 1 0 0 0 )'.
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Final remarks}
+\begin{itemize}
+  \item We presented a vanilla implementation of DLX with the ZDD extension
+          in pure Smalltalk, with an educational savor.
+  \item It is designed to be easy to understand and to play with
+          still remaining efficient and robust.
+  \item Dancing links are considered the state-of-the-art heuristic for EC
+  \item :) Knuth is still actively working on this (a new fascicle is in prep \footnote{\url{https://cs.stanford.edu/~knuth/fasc5c.ps.gz}})
+  \item :( Constraints are verbose and rigid to express (currently we use \texttt{Point} objs), 
+        looking for a DSL that makes coding constraints easier
+  \item TODO
+    \begin{itemize}
+      \item Group column objects using different colours to gain expressivity
+      \item Write reductions to Exact Cover (from $3$SAT, Knapsack, TSP, ...)
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{ }
+  \vfill
+  \centering{\Huge Thanks!}
+  \vfill
+  \includegraphics[height=.5\textheight,width=\textwidth]{balloon-puzzle.jpg}
+  \vfill
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}[fontsize=\small]{smalltalk}
+yieldNode: tree onBlock: cont
+  tree sets
+    collect: [ :each | (each collect: #model) as: LinkedList ]
+    thenDo: [ :sel | 
+      | link |
+      link := sel isEmpty ifTrue: [ nil ] ifFalse: [ sel firstLink ].
+      cont value: link ].
+  ^ tree
+\end{minted}
+\vfill
+\begin{minted}[fontsize=\small]{smalltalk}
+uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y
+  | key |
+  key := Array with: r with: x with: y.
+  ^ zDDTree
+    at: key
+    ifAbsentPut: [ | z |
+      z := ZDDNode new model: r; lower: x; higher: y; yourself.
+      x parent: z.
+      y parent: z.
+      z ]
+\end{minted}
+\end{frame}
+
 
 \begin{frame}[fragile]
 \frametitle{DLDataObject class side}
@@ -359,161 +540,6 @@ gridOn: aCollection
 \end{minted}
 \end{frame}
 
-\begin{frame}[fragile]
-\frametitle{Sudoku to Exact Cover reduction}
-\begin{minted}[fontsize=\small]{smalltalk}
-emptySudokuIndicators
-  | ones start end |
-  start := 0. end := 8. ones := LinkedList new.
-  start to: end do: [ :row | 
-    start to: end do: [ :column | 
-      start to: end do: [ :value | 
-        | rowIndex cellConstraint rowConstraint 
-          columnConstraint boxConstraint model |
-        model := {(#x -> row). (#y -> column). (#v -> value)} asDictionary.
-        rowIndex := 81 * row + (9 * column) + value.
-        cellConstraint := rowIndex @ ((end + 1) * row + column).
-        rowConstraint := rowIndex @ (9 * row + value + 81).
-        columnConstraint := rowIndex @ (9 * column + value + (81 * 2)).
-        boxConstraint := rowIndex
-            @ (27 * (row // 3) + (9 * (column // 3)) + value + (81 * 3)).
-        ones
-          add: ((cellConstraint + 1) asDLPoint primary: true) -> model;
-          add: ((rowConstraint + 1) asDLPoint primary: true) -> model;
-          add: ((columnConstraint + 1) asDLPoint primary: true) -> model;
-          add: ((boxConstraint + 1) asDLPoint primary: true) -> model ] ] ].
-  ^ ones
-\end{minted}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Soduku solutions}
-\begin{minted}[fontsize=\small]{smalltalk}
-testDLXonSudoku
-  | grid sols chain matrices |
-  grid := DLDataObject gridOn: DLDataObjectTest new emptySudokuIndicators.
-  chain := Generator
-    on: [ :g | 
-      AlgorithmX new
-        searchDLRootObject: (grid at: #root)
-        onSolutionDo: [ :sel | g yield: sel ] ].
-  sols := (chain next: 2) contents.
-  matrices := sols collect: [ :sol | "build the corresponding matrix" ].
-  self
-    assert: matrices first printString
-    equals:
-      '(9 8 7 6 5 4 3 2 1
-        6 5 4 3 2 1 9 8 7
-        3 2 1 9 8 7 6 5 4
-        8 9 6 7 4 5 2 1 3
-        7 4 5 2 1 3 8 9 6
-        2 1 3 8 9 6 7 4 5
-        5 7 9 4 6 8 1 3 2
-        4 6 8 1 3 2 5 7 9
-        1 3 2 5 7 9 4 6 8 )'.
-\end{minted}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{$N$-Queens to Exact Cover reduction}
-\begin{minted}[fontsize=\small]{smalltalk}
-NQueensIndicators: n
-  | ones |
-  ones := LinkedList new.
-  0 to: n - 1 do: [ :row | 
-    0 to: n - 1 do: [ :column | 
-      | rowIndex rowConstraint columnConstraint 
-        diagonalConstraint antiDiagonalConstraint model |
-      model := Dictionary new at: #x put: row; at: #y put: column; yourself.
-      rowIndex := n * row + column.
-      rowConstraint := rowIndex @ row.
-      columnConstraint := rowIndex @ (n + column).
-      diagonalConstraint := rowIndex @ (2 * n + (row + column)).
-      antiDiagonalConstraint := rowIndex
-            @ (2 * n + (2 * n) - 1 + (n - 1 - row + column)).
-      ones
-        add: ((rowConstraint + 1) asDLPoint primary: true) -> model;
-        add: ((columnConstraint + 1) asDLPoint primary: true) -> model;
-        add: ((diagonalConstraint + 1) asDLPoint primary: false) -> model;
-        add: ((antiDiagonalConstraint + 1) asDLPoint primary: false) -> model ] ].
-  ^ ones
-\end{minted}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{$N$-Queens solutions}
-\begin{minted}[fontsize=\small]{smalltalk}
-testDLXon_NQueens_sequence
-  | seq |
-  seq := (1 to: 11)
-    collect: [ :i | (self runDLXonNQueens: i next: nil) size ].
-  self
-    assert: seq
-    equals: {1 . 0 . 0 . 2 . 10 . 4 . 40 . 92 . 352 . 724 . 2680}
-\end{minted}
-the above sequence is also known as \url{https://oeis.org/A000170}.
-\begin{minted}[fontsize=\small]{smalltalk}
-testDLXon_8Queens
-  | matrices |
-  matrices := self runDLXonNQueens: 8 next: 1.
-  self
-    assert: matrices first printString
-    equals:
-      '(0 0 0 0 0 0 0 1
-        0 0 0 1 0 0 0 0
-        1 0 0 0 0 0 0 0
-        0 0 1 0 0 0 0 0
-        0 0 0 0 0 1 0 0
-        0 1 0 0 0 0 0 0
-        0 0 0 0 0 0 1 0
-        0 0 0 0 1 0 0 0 )'.
-\end{minted}
-
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Final remarks}
-\begin{itemize}
-  \item :) Knuth is actively working on this (a new fascicle is coming https://cs.stanford.edu/~knuth/fasc5c.ps.gz)
-  \item :( Constraints are verbose and rigid to express (currently we use \texttt{Point} objs), 
-        looking for a DSL that makes coding constraints easier
-  \item TODO
-    \begin{itemize}
-      \item Group column objects using different colours to express even more constraints
-      \item Write reductions to Exact Cover (from $3$SAT, Knapsack, TSP, ...)
-    \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{ }
-\Huge Thanks!
-\end{frame}
-
-\begin{frame}[fragile]
-\begin{minted}[fontsize=\small]{smalltalk}
-yieldNode: tree onBlock: cont
-  tree sets
-    collect: [ :each | (each collect: #model) as: LinkedList ]
-    thenDo: [ :sel | 
-      | link |
-      link := sel isEmpty ifTrue: [ nil ] ifFalse: [ sel firstLink ].
-      cont value: link ].
-  ^ tree
-\end{minted}
-\vfill
-\begin{minted}[fontsize=\small]{smalltalk}
-uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y
-  | key |
-  key := Array with: r with: x with: y.
-  ^ zDDTree
-    at: key
-    ifAbsentPut: [ | z |
-      z := ZDDNode new model: r; lower: x; higher: y; yourself.
-      x parent: z.
-      y parent: z.
-      z ]
-\end{minted}
-\end{frame}
 
 
 \end{document}
