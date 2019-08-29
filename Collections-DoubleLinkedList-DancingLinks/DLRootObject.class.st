@@ -6,15 +6,18 @@ Class {
 
 { #category : #accessing }
 DLRootObject >> chooseColumn [
-	| c s |
-	s := Float infinity.
-	self
-		untilFixPointOf: [:ro | ro right]
-		do: [ :j | 
-			j size < s
-				ifTrue: [ c := j.
-					s := j size ] ].
-	^ c
+	^ self chooseColumnWithWeight: #size withOpt: [ :x :y | x < y ]
+]
+
+{ #category : #accessing }
+DLRootObject >> chooseColumnWithWeight: weightBlock withOpt: optBlock [
+	^ self
+		untilFixPointOf: [ :ro | ro left ]
+		foldr: [ :j :r | 
+			(optBlock value: (weightBlock value: j) value: (weightBlock value: r))
+				ifTrue: [ j ]
+				ifFalse: [ r ] ]
+		init: self right
 ]
 
 { #category : #accessing }

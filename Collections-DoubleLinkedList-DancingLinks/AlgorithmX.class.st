@@ -36,30 +36,24 @@ AlgorithmX >> searchDLRootObject: h onSolutionDo: aBlock [
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLColumnObject: c partialSelection: sel [
-	^ self
-		onEnter: [ c cover ]
-		do: [
-			c
-				untilFixPointOf: [ :co | co up ]
-				foldr: [ :r :x | 
-					| y |
-					y := self searchDepth: k forDLDataObject: r partialSelection: sel.
-					y isZDDBottom
-						ifTrue: [ x ]
-						ifFalse: [ self
-								uniqueNodeWithDLDataObject: r
-								withLowerNode: x
-								withHigherNode: y ] ]
-				init: bottom.
-			]
-		onExit: [ c uncover ]
+	
+	^ [ c
+		untilFixPointOf: [ :co | co up ]
+		foldr: [ :r :x | 
+			| y |
+			y := self searchDepth: k forDLDataObject: r partialSelection: sel.
+			y isZDDBottom
+				ifTrue: [ x ]
+				ifFalse: [ self
+						uniqueNodeWithDLDataObject: r
+						withLowerNode: x
+						withHigherNode: y ] ]
+		init: bottom ] onEnter: [ c cover ] onExit: [ c uncover ]
 ]
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLDataObject: r partialSelection: cont [
-	^ self
-		onEnter: [ r untilFixPointOf: [ :ro | ro right ] do: [ :j | j column cover ] ]
-		do: [ self
+	^  [ self
 				searchDepth: k + 1
 				forDLRootObject: r column root
 				partialSelection: [ :sel | 
@@ -68,8 +62,7 @@ AlgorithmX >> searchDepth: k forDLDataObject: r partialSelection: cont [
 							(ValueLink new
 								value: r model;
 								nextLink: sel;
-								yourself) ] ]
-		onExit: [ r untilFixPointOf: [ :ro | ro left ] do: [ :j | j column uncover ] ]
+								yourself) ] ] onEnter:  [ r untilFixPointOf: [ :ro | ro right ] do: [ :j | j column cover ] ] onExit:  [ r untilFixPointOf: [ :ro | ro left ] do: [ :j | j column uncover ] ]
 ]
 
 { #category : #searching }
