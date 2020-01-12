@@ -41,7 +41,7 @@ DoubleLinkedListTest >> testMakeCircular [
 	self assert: list last equals: 2.
 	linkOne remove.
 	self assert: list first equals: 2.
-	self assert: list last equals: 2.
+	self assert: list last equals: 2
 	"self assert: list asArray equals: #(1 2).
 	linkTwo remove.
 	self assert: list first equals: 1.
@@ -103,7 +103,7 @@ DoubleLinkedListTest >> testRemoveUsingPreviousAndNextLinksBoundaryCases [
 	linkTwo remove.
 	self assert: list first equals: 1.
 	self assert: list last equals: 2.
-	self assert: list asArray equals: #(1 2).
+	self assert: list asArray equals: #(1 2)
 ]
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
@@ -114,8 +114,7 @@ DoubleLinkedListTest >> testRestoreUsingPreviousAndNextLinks [
 	link := list add: 2.
 	list add: 3.
 	link remove restore.
-	self
-		assert: list asArray
-		equals: #(1 2 3). link restore restore restore.
+	self assert: list asArray equals: #(1 2 3).
+	link restore restore restore.
 	self assert: list asArray equals: #(1 2 3)
 ]
