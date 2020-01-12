@@ -6,11 +6,11 @@ Class {
 
 { #category : #tests }
 DLDataObjectTest >> NQueensIndicators: n [
-	| ones  |
+	| ones |
 	ones := LinkedList new.
 	0 to: n - 1 do: [ :row | 
 		0 to: n - 1 do: [ :column | 
-			|rowIndex rowConstraint columnConstraint diagonalConstraint antiDiagonalConstraint model |
+			| rowIndex rowConstraint columnConstraint diagonalConstraint antiDiagonalConstraint model |
 			model := Dictionary new
 				at: #x put: row;
 				at: #y put: column;
@@ -25,7 +25,7 @@ DLDataObjectTest >> NQueensIndicators: n [
 				add: ((rowConstraint + 1) asDLPoint primary: true) -> model;
 				add: ((columnConstraint + 1) asDLPoint primary: true) -> model;
 				add: ((diagonalConstraint + 1) asDLPoint primary: false) -> model;
-				add: ((antiDiagonalConstraint + 1) asDLPoint primary: false) -> model.] ].
+				add: ((antiDiagonalConstraint + 1) asDLPoint primary: false) -> model ] ].
 	^ ones
 ]
 
@@ -41,9 +41,9 @@ DLDataObjectTest >> ZDDIndicators [
 	(3 @ 6).
 	(4 @ 3).
 	(4 @ 4).
-(4 @ 6).
+	(4 @ 6).
 	(5 @ 3).
-	(5 @ 5).}
+	(5 @ 5)}
 		collect: [ :each | (each asDLPoint primary: true) -> each x ]
 ]
 

@@ -1,7 +1,7 @@
-Extension { #name : #DoubleLinkedListTests }
+Extension { #name : #DoubleLinkedListTest }
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
-DoubleLinkedListTests >> testDancingLinksCreateFirstKnuthMatrix [
+DoubleLinkedListTest >> testDancingLinksCreateFirstKnuthMatrix [
 	| matrix |
 	matrix := Array2D
 		rows: 6
@@ -31,7 +31,7 @@ DoubleLinkedListTests >> testDancingLinksCreateFirstKnuthMatrix [
 ]
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
-DoubleLinkedListTests >> testMakeCircular [
+DoubleLinkedListTest >> testMakeCircular [
 	| list linkOne linkTwo |
 	list := DoubleLinkedList new.
 	linkOne := list add: 1.
@@ -64,7 +64,7 @@ DoubleLinkedListTests >> testMakeCircular [
 ]
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
-DoubleLinkedListTests >> testRemoveUsingPreviousAndNextLinks [
+DoubleLinkedListTest >> testRemoveUsingPreviousAndNextLinks [
 	| list link |
 	list := DoubleLinkedList new.
 	list add: 1.
@@ -77,7 +77,7 @@ DoubleLinkedListTests >> testRemoveUsingPreviousAndNextLinks [
 ]
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
-DoubleLinkedListTests >> testRemoveUsingPreviousAndNextLinksBoundaryCases [
+DoubleLinkedListTest >> testRemoveUsingPreviousAndNextLinksBoundaryCases [
 	| list linkOne linkTwo |
 	list := DoubleLinkedList new.
 	linkOne := list add: 1.
@@ -107,7 +107,7 @@ DoubleLinkedListTests >> testRemoveUsingPreviousAndNextLinksBoundaryCases [
 ]
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
-DoubleLinkedListTests >> testRestoreUsingPreviousAndNextLinks [
+DoubleLinkedListTest >> testRestoreUsingPreviousAndNextLinks [
 	| list link |
 	list := DoubleLinkedList new.
 	list add: 1.
