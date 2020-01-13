@@ -1,7 +1,7 @@
-Extension { #name : #DoubleLinkedListTests }
+Extension { #name : #DoubleLinkedListTest }
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
-DoubleLinkedListTests >> testDancingLinksCreateFirstKnuthMatrix [
+DoubleLinkedListTest >> testDancingLinksCreateFirstKnuthMatrix [
 	| matrix |
 	matrix := Array2D
 		rows: 6
@@ -31,7 +31,7 @@ DoubleLinkedListTests >> testDancingLinksCreateFirstKnuthMatrix [
 ]
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
-DoubleLinkedListTests >> testMakeCircular [
+DoubleLinkedListTest >> testMakeCircular [
 	| list linkOne linkTwo |
 	list := DoubleLinkedList new.
 	linkOne := list add: 1.
@@ -41,7 +41,7 @@ DoubleLinkedListTests >> testMakeCircular [
 	self assert: list last equals: 2.
 	linkOne remove.
 	self assert: list first equals: 2.
-	self assert: list last equals: 2.
+	self assert: list last equals: 2
 	"self assert: list asArray equals: #(1 2).
 	linkTwo remove.
 	self assert: list first equals: 1.
@@ -64,7 +64,7 @@ DoubleLinkedListTests >> testMakeCircular [
 ]
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
-DoubleLinkedListTests >> testRemoveUsingPreviousAndNextLinks [
+DoubleLinkedListTest >> testRemoveUsingPreviousAndNextLinks [
 	| list link |
 	list := DoubleLinkedList new.
 	list add: 1.
@@ -77,7 +77,7 @@ DoubleLinkedListTests >> testRemoveUsingPreviousAndNextLinks [
 ]
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
-DoubleLinkedListTests >> testRemoveUsingPreviousAndNextLinksBoundaryCases [
+DoubleLinkedListTest >> testRemoveUsingPreviousAndNextLinksBoundaryCases [
 	| list linkOne linkTwo |
 	list := DoubleLinkedList new.
 	linkOne := list add: 1.
@@ -103,19 +103,18 @@ DoubleLinkedListTests >> testRemoveUsingPreviousAndNextLinksBoundaryCases [
 	linkTwo remove.
 	self assert: list first equals: 1.
 	self assert: list last equals: 2.
-	self assert: list asArray equals: #(1 2).
+	self assert: list asArray equals: #(1 2)
 ]
 
 { #category : #'*Collections-DoubleLinkedList-DancingLinks-Tests' }
-DoubleLinkedListTests >> testRestoreUsingPreviousAndNextLinks [
+DoubleLinkedListTest >> testRestoreUsingPreviousAndNextLinks [
 	| list link |
 	list := DoubleLinkedList new.
 	list add: 1.
 	link := list add: 2.
 	list add: 3.
 	link remove restore.
-	self
-		assert: list asArray
-		equals: #(1 2 3). link restore restore restore.
+	self assert: list asArray equals: #(1 2 3).
+	link restore restore restore.
 	self assert: list asArray equals: #(1 2 3)
 ]
