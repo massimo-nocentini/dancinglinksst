@@ -3,16 +3,16 @@
 \documentclass[10pt]{beamer}
 
 
-\usepackage[utf8]{inputenc}
+\usepackage[utf8x]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
 \usepackage{minted}
 \usepackage[scaled=0.8]{beramono}
-\usepackage{CJKutf8}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{euler}
+\usepackage{fancyvrb}
 
 \usefonttheme[onlymath]{serif}
 
@@ -22,7 +22,7 @@
 
 %Information to be included in the title page:
 \title{Dancing Links\\\small{an educational pearl}}
-\author{Massimo Nocentini, PhD.\\\footnotesize{\url{massimo.nocentini@gmail.com}}}
+\author{Massimo Nocentini, PhD.\\\footnotesize{massimo.nocentini@gmail.com}}
 \institute{ESUG2019 -- \today.}
 \date{\vspace{0.5cm}\includegraphics{SchmidtLogo.jpg}}
 
@@ -53,11 +53,11 @@ outline
 $ whoami
 Massimo Nocentini, PhD
 Mathematician (algebraic combinatorics, formal methods for algs)
-Programmer (automated reasoning, logics and symbolic comp)
+Programmer (automated reasoning, logics and symbolic computation)
 https://github.com/massimo-nocentini/dancinglinksst
 \end{Verbatim}
 \vfill
-In Donald's words\footnote{\url{https://arxiv.org/abs/cs/0011047}}:
+In Donald's words\footnote{\url{https://arxiv.org/abs/cs/0011047}\\Donald Knuth's 24th Annual Christmas Lecture (\url{https://youtu.be/_cR9zDlvP88})}:
 \emph{
 Suppose $x$ points to an element of a doubly linked list;
 let $L[x]$ and $R[x]$ point to the predecessor and successor
@@ -70,13 +70,9 @@ But comparatively few programmers have realized that
 \begin{displaymath}
   L[R[x]] \leftarrow x,\quad R[L[x]] \leftarrow x \quad(2)
 \end{displaymath}
-will put $x$ back again, with no refs to the whole list at all.
+will put $x$ back again, without references to the whole list at all.
 }
 
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Space for sketching}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -90,9 +86,12 @@ will put $x$ back again, with no refs to the whole list at all.
   numbers of interacting doubly linked lists.
   \item Knuth: ``\emph{This process causes the pointer variables inside the global data structure to execute an 
     exquisitely choreographed dance; hence I like to call $(1)$ and $(2)$ the \textbf{technique of dancing links}.}''
+  \item Knuth's AlgorithmX is a dedicated algorithm that can find all exact covers;
+  	it is a simple depth-first backtracking-based search algorithm that runs
+	efficiently via $(1)$ and $(2)$.
   \item Minato et al. \footnote{\url{https://aaai.org/ocs/index.php/AAAI/AAAI17/paper/view/14907}} 
-  constructs a Zero-suppressed BDD (ZDD) that represents the set of sols and it enables the efficient 
-  use of memo cache to speed up the search.
+  represent the set of sols using Zero-suppressed BDD (ZDD) that enables the efficient 
+  use of memo caching to speed up the search.
 \end{itemize}
 \end{frame}
 
@@ -127,7 +126,7 @@ to introduce circular, doubly connected, lists.
 \emph{Given a matrix of $0$s and $1$s, does it have a set of rows containing \textbf{exactly one} symbol $1$ in each column?}
 \begin{columns}
      \begin{column}{.7\linewidth}
-      The problem with matrix
+      Let $r_{i}\in\lbrace 0, 1 \rbrace$, the matricial equation
       \begin{displaymath}
         \left(\begin{array}{c}
           r_{1} \\ r_{2} \\ r_{3} \\ r_{4} \\ r_{5}
@@ -158,9 +157,37 @@ then the problem is to cover the universe with disjoint subsets, $\mathcal{NP}$-
 when each row contains exactly three $1$s.
 \end{frame}
 
+\begin{frame}[fragile]
+\frametitle{AlgorithmX}
+AlgorithmX finds all sols to the Exact Cover problem defined by any given matrix A of 0s and 1s. It is simply a statement of the obvious trial-and-error approach\footnote{"Indeed, I can’t think of any other reasonable way to do the job, in general."} and can now be cast in the following explicit, deterministic recursive procedure \verb|search(k)|, which is invoked initially with \verb|k = 0|:
+\vfill
+\begin{Verbatim}[fontsize=\small]
+if R[h] = h, print the current solution and return;
+	otherwise, choose a column object c.
+Cover column c.
+For each r ← D[c], D[D[c]], ... while r ≠ c,
+	cover column j;
+search(k + 1);
+set r ← O[k] and c ← C[r];
+for each j ← L[r], L[L[r]], ... while j ≠ r,
+	uncover column j.
+Uncover column c and return.
+\end{Verbatim}
+\end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Space for sketching}
+\frametitle{AlgorithmX}
+\begin{itemize}
+	\item DLX has been empirically confirmed to be the fastest for solving exact covers
+		\footnote{Junttila, T., and Kaski, P. 2010. Exact cover via satisfiability: An empirical study.}.
+	\item Exact covers allow maximization of a complex objective function.
+	\item Design of combinatorial objects like electric circuits and tiling problems (tetrasticks, parallelogram polyominoes, board games, ...).
+	\item Since DLX is a depth-first-search-based method, it may encounter the same sub-problems several times.
+	\begin{itemize}
+		\item ZDDs that contain solutions to sub-problems, sub-ZDDs (subgraphs), memo cache only requires constant memory for each problem by storing the address of the root node of the sub-ZDD representing the set of solutions.
+		\item ZDDs support operations that can run in time proportional to ZDD size; for example, model counting, enumeration of subsets and efficient binary operations over families of sets.
+	\end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -423,10 +450,13 @@ testDLXon_8Queens
   \item :) Knuth is still actively working on this (a new fascicle is in prep \footnote{\url{https://cs.stanford.edu/~knuth/fasc5c.ps.gz}})
   \item :( Constraints are verbose and rigid to express (currently we use \texttt{Point} objs), 
         looking for a DSL that makes coding constraints easier
-  \item TODO
+  \item Further works:
     \begin{itemize}
-      \item Group column objects using different colours to gain expressivity
-      \item Write reductions to Exact Cover (from $3$SAT, Knapsack, TSP, ...)
+      \item Group column objects using different colours to gain expressivity.
+      \item Write reductions to Exact Cover (from $3$SAT, Knapsack, TSP, ...).
+	  \item Provide visualizations both for tetrastick and tilings.
+	  \item Integrate the search into a logic framework\footnote{\url{https://github.com/massimo-nocentini/microkanrenst}} to handle
+	  relations over \emph{Finite Domains}
     \end{itemize}
 \end{itemize}
 \end{frame}
