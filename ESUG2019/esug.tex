@@ -25,7 +25,7 @@
 \author{Massimo Nocentini, PhD.\\
 	\footnotesize{massimo.nocentini@gmail.com}\\
 	\footnotesize{massimo-nocentini.github.io}}
-\institute{ESUG2019 -- \today.}
+\institute{ESUG2019, Cologne. -- \today.}
 \date{\vspace{0.5cm}\includegraphics{SchmidtLogo.jpg}}
 
 \begin{document}
@@ -164,15 +164,17 @@ when each row contains exactly three $1$s.
 AlgorithmX finds all sols to the Exact Cover problem defined by any given matrix A of 0s and 1s. It is simply a statement of the obvious trial-and-error approach\footnote{"Indeed, I can’t think of any other reasonable way to do the job, in general."} and can now be cast in the following explicit, deterministic recursive procedure \verb|search(k)|, which is invoked initially with \verb|k = 0|:
 \vfill
 \begin{Verbatim}[fontsize=\small]
-if R[h] = h, print the current solution and return;
+if R[h] = h, print the current solution O and return;
 	otherwise, choose a column object c.
 Cover column c.
 For each r ← D[c], D[D[c]], ... while r ≠ c,
-	cover column j;
-search(k + 1);
-set r ← O[k] and c ← C[r];
-for each j ← L[r], L[L[r]], ... while j ≠ r,
-	uncover column j.
+	set O[k] ← r;
+	for each j ← R[r], R[R[r]], ... while j ≠ r,
+		cover column j.
+	search(k + 1);
+	set r ← O[k] and c ← C[r];
+	for each j ← L[r], L[L[r]], ... while j ≠ r,
+		uncover column j.
 Uncover column c and return.
 \end{Verbatim}
 \end{frame}
