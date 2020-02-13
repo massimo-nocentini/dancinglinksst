@@ -10,10 +10,8 @@ BaselineOfDancingLinks >> baseline: spec [
 	spec
 		for: #common
 		do: [ spec
-				package: 'Collections-DoubleLinkedList-DancingLinks'
-					;
+				package: 'Collections-DoubleLinkedList-DancingLinks';
 				package: 'Collections-DoubleLinkedList-DancingLinks-Tests'
 					with: [ spec requires: 'Collections-DoubleLinkedList-DancingLinks' ];
-				
 				yourself ]
 ]
