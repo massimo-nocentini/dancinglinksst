@@ -12,14 +12,7 @@ Class {
 
 { #category : #modifying }
 DLColumnObject >> cover [
-	self coverWith: #yourself
-]
-
-{ #category : #modifying }
-DLColumnObject >> coverWith: aBlock [
-	| n |
 	self horizontalLink remove.
-	n := 1.	"One update happened in the line above"
 	self
 		untilFixPointOf: [ :co | co down ]
 		do: [ :i | 
@@ -27,10 +20,8 @@ DLColumnObject >> coverWith: aBlock [
 				untilFixPointOf: [ :do | do right ]
 				do: [ :j | 
 					j verticalLink remove.
-					n := n + 1.
-					j column updateSize: [ :s | s - 1 ] ] ].
-	self root columnHasBeenCovered: self.
-	^ aBlock value: n
+					j column updateSize: #decrement ] ].
+	self root columnHasBeenCovered: self
 ]
 
 { #category : #accessing }
@@ -65,7 +56,7 @@ DLColumnObject >> root: anObject [
 
 { #category : #accessing }
 DLColumnObject >> size [
-^ size
+	^ size
 ]
 
 { #category : #accessing }
@@ -75,13 +66,6 @@ DLColumnObject >> size: anInteger [
 
 { #category : #modifying }
 DLColumnObject >> uncover [
-	self uncoverWith: #yourself
-]
-
-{ #category : #modifying }
-DLColumnObject >> uncoverWith: aBlock [
-	| n |
-	n := 0.
 	self
 		untilFixPointOf: [ :co | co up ]
 		do: [ :i | 
@@ -89,11 +73,9 @@ DLColumnObject >> uncoverWith: aBlock [
 				untilFixPointOf: [ :do | do left ]
 				do: [ :j | 
 					j verticalLink restore.
-					n := n + 1.
-					j column updateSize: [ :s | s + 1 ] ] ].
+					j column updateSize: #increment ] ].
 	self horizontalLink restore.
-	self root columnHasBeenUncovered: self.
-	^ aBlock value: n + 1
+	self root columnHasBeenUncovered: self
 ]
 
 { #category : #'modifier state' }

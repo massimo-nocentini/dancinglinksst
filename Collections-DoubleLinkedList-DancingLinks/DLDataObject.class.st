@@ -160,20 +160,19 @@ DLDataObject >> right [
 
 { #category : #iterating }
 DLDataObject >> untilFixPointOf: aSelector collect: aBlockClosure [
-	| j collection |
+	| collection |
 	collection := OrderedCollection new.
-	j := aSelector value: self.
-	[ j == self ]
-		whileFalse: [ | v |
-			v := aBlockClosure value: j.
-			collection add: v.
-			j := aSelector value: j ].
-	^ collection 
+	self untilFixPointOf: aSelector do: [ :v | collection add: v ].
+	^ collection
 ]
 
 { #category : #iterating }
 DLDataObject >> untilFixPointOf: aSelector do: aBlockClosure [
-	self untilFixPointOf: aSelector  collect: aBlockClosure 
+	| j |
+	j := aSelector value: self.
+	[ j == self ]
+		whileFalse: [ aBlockClosure value: j.
+			j := aSelector value: j ]
 ]
 
 { #category : #iterating }
@@ -183,7 +182,7 @@ DLDataObject >> untilFixPointOf: aSelector foldr: aBlockClosure init: v [
 	self
 		untilFixPointOf: aSelector
 		do: [ :each | acc := aBlockClosure value: each value: acc ].
-	^acc
+	^ acc
 ]
 
 { #category : #accessing }

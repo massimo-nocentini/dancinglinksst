@@ -9,7 +9,7 @@ Class {
 
 { #category : #accessing }
 DLRootObject >> chooseColumn [
-	^ self chooseColumnWithWeight: #size withOpt: [ :x :y | x < y ]
+	^ self chooseColumnWithWeight: #size withOpt: #<
 ]
 
 { #category : #accessing }
@@ -35,12 +35,12 @@ DLRootObject >> columnHasBeenCovered: aDLColumnObject [
 
 { #category : #'as yet unclassified' }
 DLRootObject >> columnHasBeenUncovered: aDLColumnObject [
-	columns ifNotNil: [ columns setBit: aDLColumnObject name ]
+	columns setBit: aDLColumnObject name
 ]
 
 { #category : #accessing }
 DLRootObject >> columns [
-	^ columns
+	^ String streamContents: [ :s | columns bits printHexOn: s ]
 ]
 
 { #category : #accessing }

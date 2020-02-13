@@ -2,8 +2,6 @@ Class {
 	#name : #AlgorithmX,
 	#superclass : #Object,
 	#instVars : [
-		'collector',
-		'sol',
 		'memo',
 		'zDDTree',
 		'bottom',
@@ -70,20 +68,13 @@ AlgorithmX >> searchDepth: k forDLDataObject: r partialSelection: cont [
 AlgorithmX >> searchDepth: k forDLRootObject: h partialSelection: cont [
 	^ (h isFixPointOf: [ :ro | ro right ])
 		ifTrue: [ self yieldNode: top onBlock: cont ]
-		ifFalse: [ | key |
-			"key := String streamContents: [ :s | h columns bits printHexOn: s ].
-			"
-			key := h columns.
-			memo
-				at: key
+		ifFalse: [ memo
+				at: h columns
 				ifPresent: [ :tree | self yieldNode: tree onBlock: cont ]
-				ifAbsent: [ memo
-						at: key copy
-						put:
-							(self
-								searchDepth: k
-								forDLColumnObject: h chooseColumn
-								partialSelection: cont) ] ]
+				ifAbsentPut: [ self
+						searchDepth: k
+						forDLColumnObject: h chooseColumn
+						partialSelection: cont ] ]
 ]
 
 { #category : #private }
