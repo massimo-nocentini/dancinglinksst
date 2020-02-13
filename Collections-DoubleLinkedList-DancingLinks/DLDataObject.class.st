@@ -13,14 +13,9 @@ Class {
 
 { #category : #'instance creation' }
 DLDataObject class >> gridOn: aCollection [
-	| rootObj columns rows headers allObjs primaryCount |
+	| rootObj columns rows headers allObjs |
 	aCollection
-		sort: [ :vAssoc :wAssoc | 
-			| v w |
-			v := vAssoc key.
-			w := wAssoc key.
-			v y <= w y and: [ v x <= w x ] ].
-	primaryCount := 0.
+		sort: [ :vAssoc :wAssoc | self is: vAssoc key leq: wAssoc key ].
 	allObjs := Dictionary new.
 	headers := DoubleLinkedList new.
 	columns := Dictionary new.
@@ -31,26 +26,25 @@ DLDataObject class >> gridOn: aCollection [
 	allObjs at: #root put: rootObj.
 	aCollection
 		do: [ :anAssociation | 
-			| aPoint columnObj dataObj column row |
+			| aPoint columnObj dataObj column row columnName |
 			aPoint := anAssociation key.
+			columnName := aPoint y.
 			column := columns
-				at: aPoint y
+				at: columnName
 				ifAbsentPut: [ | headerObj newColumn |
-					primaryCount := primaryCount + 1.
 					headerObj := DLColumnObject new
-						name: primaryCount;
+						name: columnName;
 						primary: aPoint primary;
 						size: 0;
 						root: rootObj;
 						yourself.
 					aPoint primary
-						ifTrue:
-							[ headerObj addInDoubleLinkedList: headers then: #horizontalLink: ]
+						ifTrue: [ headerObj addInDoubleLinkedList: headers then: #horizontalLink: ]
 						ifFalse: [ DoubleLinkedList
 								circular: [ :dll | headerObj addInDoubleLinkedList: dll then: #horizontalLink: ] ].
 					newColumn := DoubleLinkedList new.
 					headerObj addInDoubleLinkedList: newColumn then: #verticalLink:.
-					allObjs at: aPoint y put: headerObj.
+					allObjs at: columnName put: headerObj.
 					newColumn ].
 			columnObj := column first.
 			dataObj := self new
@@ -62,13 +56,18 @@ DLDataObject class >> gridOn: aCollection [
 			dataObj
 				addInDoubleLinkedList: column then: #verticalLink:;
 				addInDoubleLinkedList: row then: #horizontalLink:.
-			columnObj updateSize: [ :s | s + 1 ].
+			columnObj updateSize: #increment.
 			allObjs at: aPoint put: dataObj ].
 	headers makeCircular.
 	columns valuesDo: #makeCircular.
 	rows valuesDo: #makeCircular.
 	rootObj gridHasBeenCreatedOverColumns: columns.
 	^ allObjs
+]
+
+{ #category : #'instance creation' }
+DLDataObject class >> is: v leq: w [
+	^ v y <= w y and: [ v x <= w x ]
 ]
 
 { #category : #accessing }

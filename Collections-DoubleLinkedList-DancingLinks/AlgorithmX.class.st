@@ -89,8 +89,8 @@ AlgorithmX >> uniqueNodeWithDLDataObject: r withLowerNode: x withHigherNode: y [
 				lower: x;
 				higher: y;
 				yourself.
-			 x parent: z .
-			 y parent: z .
+			x parent: z.
+			y parent: z.
 			z ]
 ]
 
@@ -100,8 +100,9 @@ AlgorithmX >> yieldNode: tree onBlock: cont [
 		collect: [ :each | (each collect: #model) as: LinkedList ]
 		thenDo: [ :sel | 
 			| link |
-			link := (sel isEmpty
+			link := sel isEmpty
 				ifTrue: [ nil ]
-				ifFalse: [ sel firstLink ]) .cont value: link ].
+				ifFalse: [ sel firstLink ].
+			cont value: link ].
 	^ tree
 ]
