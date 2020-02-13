@@ -1,6 +1,9 @@
 Class {
 	#name : #DLRootObject,
 	#superclass : #DLColumnObject,
+	#instVars : [
+		'columns'
+	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks-dancing objects'
 }
 
@@ -25,9 +28,29 @@ DLRootObject >> column [
 	self shouldNotImplement
 ]
 
+{ #category : #'as yet unclassified' }
+DLRootObject >> columnHasBeenCovered: aDLColumnObject [
+	columns clearBit: aDLColumnObject name
+]
+
+{ #category : #'as yet unclassified' }
+DLRootObject >> columnHasBeenUncovered: aDLColumnObject [
+	columns ifNotNil: [ columns setBit: aDLColumnObject name ]
+]
+
+{ #category : #accessing }
+DLRootObject >> columns [
+	^ columns
+]
+
 { #category : #accessing }
 DLRootObject >> down [
 	^ nil
+]
+
+{ #category : #accessing }
+DLRootObject >> gridHasBeenCreatedOverColumns: aDictionary [
+	columns := BitArray new: aDictionary size withAll: true
 ]
 
 { #category : #accessing }

@@ -130,9 +130,11 @@ DLDataObjectTest >> testDLXonSudoku [
 	| grid sols chain matrices |
 	grid := DLDataObject
 		gridOn: DLDataObjectTest new emptySudokuIndicators.
-	chain :=Generator
-		on:
-			[ :g |  AlgorithmX new searchDLRootObject:  (grid at: #root) onSolutionDo: [ :sel | g yield: sel ] ] .
+	chain := Generator
+		on: [ :g | 
+			AlgorithmX new
+				searchDLRootObject: (grid at: #root)
+				onSolutionDo: [ :sel | g yield: sel ] ].
 	self assert: chain atEnd equals: false.
 	sols := (chain next: 2) contents.
 	matrices := sols
@@ -304,7 +306,7 @@ DLDataObjectTest >> testDLXon_NQueens_sequence [
 	elapsedTime := [ seq := (1 to: 10)
 		collect: [ :i | (self runDLXonNQueens: i next: nil) size ] ]
 		timeToRun.
-	self assert: elapsedTime < 2 asSeconds .
+	self assert: elapsedTime < 2 asSeconds.
 	self
 		assert: seq
 		equals: {1 . 0 . 0 . 2 . 10 . 4 . 40 . 92 . 352 . 724}	" the eleventh number should be 2680"

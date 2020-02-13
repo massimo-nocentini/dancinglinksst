@@ -36,7 +36,6 @@ AlgorithmX >> searchDLRootObject: h onSolutionDo: aBlock [
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLColumnObject: c partialSelection: sel [
-	
 	^ [ c
 		untilFixPointOf: [ :co | co up ]
 		foldr: [ :r :x | 
@@ -53,29 +52,38 @@ AlgorithmX >> searchDepth: k forDLColumnObject: c partialSelection: sel [
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLDataObject: r partialSelection: cont [
-	^  [ self
-				searchDepth: k + 1
-				forDLRootObject: r column root
-				partialSelection: [ :sel | 
-					cont
-						value:
-							(ValueLink new
-								value: r model;
-								nextLink: sel;
-								yourself) ] ] onEnter:  [ r untilFixPointOf: [ :ro | ro right ] do: [ :j | j column cover ] ] onExit:  [ r untilFixPointOf: [ :ro | ro left ] do: [ :j | j column uncover ] ]
+	^ [ self
+		searchDepth: k + 1
+		forDLRootObject: r column root
+		partialSelection: [ :sel | 
+			cont
+				value:
+					(ValueLink new
+						value: r model;
+						nextLink: sel;
+						yourself) ] ]
+		onEnter: [ r untilFixPointOf: [ :ro | ro right ] do: [ :j | j column cover ] ]
+		onExit: [ r untilFixPointOf: [ :ro | ro left ] do: [ :j | j column uncover ] ]
 ]
 
 { #category : #searching }
 AlgorithmX >> searchDepth: k forDLRootObject: h partialSelection: cont [
 	^ (h isFixPointOf: [ :ro | ro right ])
-		ifTrue: [  self yieldNode: top onBlock: cont ]
-		ifFalse: [ memo
-				at: h columns
+		ifTrue: [ self yieldNode: top onBlock: cont ]
+		ifFalse: [ | key |
+			"key := String streamContents: [ :s | h columns bits printHexOn: s ].
+			"
+			key := h columns.
+			memo
+				at: key
 				ifPresent: [ :tree | self yieldNode: tree onBlock: cont ]
-				ifAbsentPut: [ self
-						searchDepth: k
-						forDLColumnObject: h chooseColumn
-						partialSelection: cont ] ]
+				ifAbsent: [ memo
+						at: key copy
+						put:
+							(self
+								searchDepth: k
+								forDLColumnObject: h chooseColumn
+								partialSelection: cont) ] ]
 ]
 
 { #category : #private }

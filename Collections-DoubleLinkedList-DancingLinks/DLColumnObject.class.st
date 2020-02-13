@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'size',
 		'name',
-		'root'
+		'root',
+		'primary'
 	],
 	#category : #'Collections-DoubleLinkedList-DancingLinks-dancing objects'
 }
@@ -28,7 +29,28 @@ DLColumnObject >> coverWith: aBlock [
 					j verticalLink remove.
 					n := n + 1.
 					j column updateSize: [ :s | s - 1 ] ] ].
+	self root columnHasBeenCovered: self.
 	^ aBlock value: n
+]
+
+{ #category : #accessing }
+DLColumnObject >> name [
+	^ name
+]
+
+{ #category : #accessing }
+DLColumnObject >> name: anObject [
+	name := anObject
+]
+
+{ #category : #accessing }
+DLColumnObject >> primary [
+	^ primary
+]
+
+{ #category : #accessing }
+DLColumnObject >> primary: anObject [
+	primary := anObject
 ]
 
 { #category : #accessing }
@@ -70,6 +92,7 @@ DLColumnObject >> uncoverWith: aBlock [
 					n := n + 1.
 					j column updateSize: [ :s | s + 1 ] ] ].
 	self horizontalLink restore.
+	self root columnHasBeenUncovered: self.
 	^ aBlock value: n + 1
 ]
 

@@ -13,13 +13,14 @@ Class {
 
 { #category : #'instance creation' }
 DLDataObject class >> gridOn: aCollection [
-	| rootObj columns rows headers allObjs |
+	| rootObj columns rows headers allObjs primaryCount |
 	aCollection
 		sort: [ :vAssoc :wAssoc | 
 			| v w |
 			v := vAssoc key.
 			w := wAssoc key.
 			v y <= w y and: [ v x <= w x ] ].
+	primaryCount := 0.
 	allObjs := Dictionary new.
 	headers := DoubleLinkedList new.
 	columns := Dictionary new.
@@ -35,12 +36,16 @@ DLDataObject class >> gridOn: aCollection [
 			column := columns
 				at: aPoint y
 				ifAbsentPut: [ | headerObj newColumn |
+					primaryCount := primaryCount + 1.
 					headerObj := DLColumnObject new
+						name: primaryCount;
+						primary: aPoint primary;
 						size: 0;
 						root: rootObj;
 						yourself.
 					aPoint primary
-						ifTrue: [ headerObj addInDoubleLinkedList: headers then: #horizontalLink: ]
+						ifTrue:
+							[ headerObj addInDoubleLinkedList: headers then: #horizontalLink: ]
 						ifFalse: [ DoubleLinkedList
 								circular: [ :dll | headerObj addInDoubleLinkedList: dll then: #horizontalLink: ] ].
 					newColumn := DoubleLinkedList new.
@@ -48,7 +53,7 @@ DLDataObject class >> gridOn: aCollection [
 					allObjs at: aPoint y put: headerObj.
 					newColumn ].
 			columnObj := column first.
-			dataObj := DLDataObject new
+			dataObj := self new
 				column: columnObj;
 				point: aPoint;
 				model: anAssociation value;
@@ -62,6 +67,7 @@ DLDataObject class >> gridOn: aCollection [
 	headers makeCircular.
 	columns valuesDo: #makeCircular.
 	rows valuesDo: #makeCircular.
+	rootObj gridHasBeenCreatedOverColumns: columns.
 	^ allObjs
 ]
 
